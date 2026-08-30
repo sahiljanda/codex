@@ -1,0 +1,828 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Blox Fruits Blind Ranking</title>
+<style>
+  :root{
+    --bg:#070f18;
+    --bg2:#0b1725;
+    --panel:#112133;
+    --panel2:#16293e;
+    --line:#23405c;
+    --text:#e8f1fa;
+    --muted:#8fa6bd;
+    --gold:#f5c451;
+    --gold-dim:#a8842c;
+    --good:#4fd18b;
+    --bad:#ff6b81;
+    --c-common:#9aa7b4;
+    --c-uncommon:#4fd18b;
+    --c-rare:#4aa8ff;
+    --c-legendary:#b07dff;
+    --c-mythical:#ff9147;
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    font-family:"Trebuchet MS","Segoe UI",system-ui,-apple-system,sans-serif;
+    color:var(--text);
+    background:
+      radial-gradient(1200px 700px at 15% -10%, #14324d 0%, transparent 60%),
+      radial-gradient(900px 600px at 100% 0%, #1a2f22 0%, transparent 55%),
+      linear-gradient(180deg,#070f18 0%, #050b12 100%);
+    background-attachment:fixed;
+    min-height:100%;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:22px 18px 60px}
+
+  header.top{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand .mark{font-size:34px;filter:drop-shadow(0 0 10px rgba(245,196,81,.45))}
+  h1{
+    margin:0;font-size:26px;letter-spacing:.5px;line-height:1.1;
+    background:linear-gradient(180deg,#ffe9a8,#f5c451 55%,#c08c22);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    text-shadow:0 2px 0 rgba(0,0,0,.35);
+  }
+  .tagline{color:var(--muted);font-size:13px;margin-top:3px}
+  .best{font-size:12px;color:var(--muted);text-align:right;line-height:1.5}
+  .best b{color:var(--gold);font-size:15px}
+
+  .card{
+    background:linear-gradient(180deg,var(--panel) 0%, var(--bg2) 100%);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:0 10px 30px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.04);
+  }
+  .pad{padding:18px}
+  h2{margin:0 0 4px;font-size:17px;letter-spacing:.4px}
+  .sub{color:var(--muted);font-size:13px;margin:0 0 14px}
+
+  /* ---------- setup ---------- */
+  .cats{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+  .cat{
+    display:flex;align-items:center;gap:11px;cursor:pointer;user-select:none;
+    padding:12px;border-radius:12px;border:1px solid var(--line);
+    background:rgba(255,255,255,.02);transition:.15s;
+  }
+  .cat:hover{border-color:#3a6b96;background:rgba(255,255,255,.05)}
+  .cat input{display:none}
+  .cat .box{
+    width:20px;height:20px;border-radius:6px;
+    display:grid;place-items:center;flex:none;font-size:13px;color:#071018;
+  }
+  .cat .box{border:2px solid #35597c;background:#0c1a28}
+  .cat.on{border-color:var(--gold-dim);background:rgba(245,196,81,.09)}
+  .cat.on .box{background:var(--gold);border-color:var(--gold)}
+  .cat .box::after{content:"✓";opacity:0;font-weight:bold}
+  .cat.on .box::after{opacity:1}
+  .cat .nm{font-size:14px;font-weight:bold}
+  .cat .ct{font-size:11.5px;color:var(--muted)}
+  .cat .ico{font-size:20px}
+
+  .row{display:flex;gap:22px;flex-wrap:wrap;margin-top:18px;align-items:flex-end}
+  .field{flex:1;min-width:230px}
+  label.lbl{display:block;font-size:12px;letter-spacing:.9px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+  .segs{display:flex;gap:8px;flex-wrap:wrap}
+  .seg{
+    padding:9px 14px;border-radius:10px;border:1px solid var(--line);
+    background:rgba(255,255,255,.02);color:var(--text);cursor:pointer;font:inherit;font-size:13.5px;transition:.15s;
+  }
+  .seg:hover{border-color:#3a6b96}
+  .seg.on{background:linear-gradient(180deg,#f5c451,#d09f2c);color:#1b1305;border-color:#f5c451;font-weight:bold}
+
+  .btn{
+    font:inherit;font-size:15px;font-weight:bold;letter-spacing:.4px;cursor:pointer;
+    padding:13px 26px;border-radius:12px;border:1px solid #f5c451;
+    background:linear-gradient(180deg,#ffd873,#e0a92f);color:#1b1305;
+    box-shadow:0 6px 18px rgba(245,196,81,.22);transition:.15s;
+  }
+  .btn:hover{transform:translateY(-1px);box-shadow:0 9px 22px rgba(245,196,81,.32)}
+  .btn:active{transform:translateY(0)}
+  .btn.ghost{background:transparent;color:var(--text);border-color:var(--line);box-shadow:none}
+  .btn.ghost:hover{border-color:#3a6b96;background:rgba(255,255,255,.04)}
+  .btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+
+  .startbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:20px}
+  .poolnote{color:var(--muted);font-size:13px}
+  .warn{color:var(--bad)}
+
+  /* ---------- game ---------- */
+  .game{display:grid;grid-template-columns:minmax(300px,400px) 1fr;gap:18px;align-items:start}
+  .hud{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+  .pill{font-size:12px;color:var(--muted);border:1px solid var(--line);padding:5px 11px;border-radius:999px;background:rgba(255,255,255,.02)}
+  .bar{height:6px;border-radius:99px;background:#0b1926;border:1px solid var(--line);overflow:hidden;margin-bottom:14px}
+  .bar > i{display:block;height:100%;background:linear-gradient(90deg,#f5c451,#ffe9a8);transition:width .35s ease}
+
+  .reveal{position:sticky;top:16px;overflow:hidden;text-align:center;padding:26px 20px 22px}
+  .reveal::before{
+    content:"";position:absolute;inset:-40% -10% auto;height:150%;
+    background:radial-gradient(circle at 50% 0%, var(--glow,rgba(245,196,81,.3)) 0%, transparent 62%);
+    pointer-events:none;
+  }
+  .reveal > *{position:relative}
+  .kicker{font-size:11.5px;letter-spacing:1.6px;text-transform:uppercase;color:var(--muted)}
+  .emoji{font-size:62px;line-height:1;margin:12px 0 8px;display:block;animation:pop .35s ease}
+  @keyframes pop{from{transform:scale(.6) rotate(-8deg);opacity:0}to{transform:none;opacity:1}}
+  .iname{font-size:27px;font-weight:bold;margin:0;letter-spacing:.3px}
+  .tags{display:flex;gap:8px;justify-content:center;margin:11px 0 12px;flex-wrap:wrap}
+  .tag{font-size:11.5px;padding:4px 10px;border-radius:999px;border:1px solid currentColor;font-weight:bold;letter-spacing:.5px}
+  .tag.cat{color:var(--muted);border-color:var(--line);background:rgba(255,255,255,.03)}
+  .idesc{color:#b9cde0;font-size:13.5px;line-height:1.6;margin:0 auto;max-width:340px;min-height:44px}
+  .hint{margin-top:16px;font-size:12px;color:var(--muted);border-top:1px dashed var(--line);padding-top:12px}
+  .hint b{color:var(--gold)}
+
+  .slots{display:grid;gap:9px}
+  .slot{
+    display:flex;align-items:center;gap:12px;width:100%;text-align:left;
+    padding:11px 13px;border-radius:12px;border:1px dashed var(--line);
+    background:rgba(255,255,255,.015);color:var(--text);font:inherit;cursor:pointer;transition:.14s;
+  }
+  .slot .rank{
+    flex:none;width:34px;height:34px;border-radius:9px;display:grid;place-items:center;
+    background:#0c1b29;border:1px solid var(--line);font-weight:bold;font-size:14px;color:var(--muted);
+  }
+  .slot.open:hover{border-color:var(--gold);background:rgba(245,196,81,.09);transform:translateX(3px)}
+  .slot.open:hover .rank{color:var(--gold);border-color:var(--gold-dim)}
+  .slot .txt{flex:1;min-width:0}
+  .slot .ph{color:#5d7995;font-size:13.5px;font-style:italic}
+  .slot .nm{display:block;font-weight:bold;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .slot .meta{display:block;font-size:11.5px;color:var(--muted)}
+  .slot.filled{cursor:default;border-style:solid;background:linear-gradient(90deg,rgba(255,255,255,.05),rgba(255,255,255,.015))}
+  .slot.filled .rank{background:#132639;color:var(--text)}
+  .slot .key{flex:none;font-size:10.5px;color:#4d6a86;border:1px solid var(--line);border-radius:6px;padding:2px 6px}
+  .slot .em{font-size:20px;flex:none}
+  .slotwrap{max-height:none}
+  .lockrow{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:11px;flex-wrap:wrap}
+  .lockrow .t{font-size:12px;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted)}
+
+  /* ---------- results ---------- */
+  .scorehead{display:flex;gap:24px;align-items:center;flex-wrap:wrap;justify-content:space-between}
+  .grade{
+    width:118px;height:118px;border-radius:50%;flex:none;display:grid;place-items:center;
+    background:conic-gradient(var(--gold) calc(var(--p)*1%), #16293e 0);
+    position:relative;
+  }
+  .grade::after{content:"";position:absolute;inset:9px;border-radius:50%;background:#0c1a27;border:1px solid var(--line)}
+  .grade .g{position:relative;z-index:1;text-align:center}
+  .grade .g .l{font-size:36px;font-weight:bold;line-height:1;background:linear-gradient(180deg,#ffe9a8,#f5c451);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .grade .g .p{font-size:12px;color:var(--muted);margin-top:3px}
+  .verdict{flex:1;min-width:240px}
+  .verdict h2{font-size:21px;margin-bottom:6px}
+  .verdict p{margin:0;color:#b9cde0;font-size:14px;line-height:1.65}
+  .callouts{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:11px;margin-top:16px}
+  .callout{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:rgba(255,255,255,.02)}
+  .callout .t{font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+  .callout .v{font-size:15px;font-weight:bold}
+  .callout .d{font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.5}
+
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  .tablewrap{overflow-x:auto;margin-top:6px}
+  th{
+    text-align:left;font-size:11px;letter-spacing:1.1px;text-transform:uppercase;color:var(--muted);
+    font-weight:normal;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap;
+  }
+  td{padding:9px 10px;border-bottom:1px solid rgba(35,64,92,.5);vertical-align:middle}
+  tr:last-child td{border-bottom:none}
+  td.num{color:var(--muted);width:44px;font-variant-numeric:tabular-nums}
+  td.item{font-weight:bold;white-space:nowrap}
+  td.item .em{margin-right:7px}
+  .delta{font-size:12px;font-weight:bold;padding:3px 9px;border-radius:999px;white-space:nowrap;display:inline-block;min-width:60px;text-align:center}
+  .delta.ok{color:var(--good);background:rgba(79,209,139,.13);border:1px solid rgba(79,209,139,.35)}
+  .delta.mid{color:var(--gold);background:rgba(245,196,81,.12);border:1px solid rgba(245,196,81,.35)}
+  .delta.off{color:var(--bad);background:rgba(255,107,129,.12);border:1px solid rgba(255,107,129,.35)}
+  .actions{display:flex;gap:11px;margin-top:20px;flex-wrap:wrap}
+  .copied{color:var(--good);font-size:13px;align-self:center}
+
+  .foot{margin-top:26px;text-align:center;color:#546d86;font-size:11.5px;line-height:1.7}
+  .hidden{display:none !important}
+  @media (max-width:860px){
+    .game{grid-template-columns:1fr}
+    .reveal{position:relative;top:auto}
+    .emoji{font-size:52px}
+    .iname{font-size:23px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="brand">
+      <div class="mark">🏴‍☠️</div>
+      <div>
+        <h1>BLOX FRUITS · BLIND RANKING</h1>
+        <div class="tagline">One item at a time. No takebacks. Rank them before you know what's coming.</div>
+      </div>
+    </div>
+    <div class="best" id="bestBox"></div>
+  </header>
+
+  <!-- ============ SETUP ============ -->
+  <section id="setup" class="card pad">
+    <h2>Pick your loot pool</h2>
+    <p class="sub">Every fruit, sword, gun, fighting style, race and accessory is in here. Choose what you want thrown at you.</p>
+    <div class="cats" id="cats"></div>
+
+    <div class="row">
+      <div class="field">
+        <label class="lbl">Slots to fill</label>
+        <div class="segs" id="slotSegs"></div>
+      </div>
+      <div class="field">
+        <label class="lbl">Difficulty of the draw</label>
+        <div class="segs" id="drawSegs"></div>
+      </div>
+    </div>
+
+    <div class="startbar">
+      <button class="btn" id="startBtn">Start blind ranking</button>
+      <span class="poolnote" id="poolNote"></span>
+    </div>
+  </section>
+
+  <!-- ============ GAME ============ -->
+  <section id="game" class="hidden">
+    <div class="hud">
+      <span class="pill" id="hudRound"></span>
+      <span class="pill" id="hudPool"></span>
+      <span class="pill" id="hudLeft"></span>
+    </div>
+    <div class="bar"><i id="progBar" style="width:0%"></i></div>
+
+    <div class="game">
+      <div class="card reveal" id="revealCard">
+        <div class="kicker">Item <span id="itemIdx"></span> — place it blind</div>
+        <span class="emoji" id="itemEmoji">❓</span>
+        <p class="iname" id="itemName">—</p>
+        <div class="tags">
+          <span class="tag" id="itemRarity">—</span>
+          <span class="tag cat" id="itemCat">—</span>
+        </div>
+        <p class="idesc" id="itemDesc"></p>
+        <div class="hint">Click a slot to lock it in — or press <b>1</b>–<b>9</b> / <b>0</b> for the first ten slots. <b>#1 is the best</b>.</div>
+      </div>
+
+      <div class="card pad">
+        <div class="lockrow">
+          <span class="t">Your ranking</span>
+          <button class="btn ghost" id="quitBtn" style="padding:7px 14px;font-size:12.5px">Abandon ship</button>
+        </div>
+        <div class="slots" id="slots"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ RESULTS ============ -->
+  <section id="results" class="hidden">
+    <div class="card pad">
+      <div class="scorehead">
+        <div class="grade" id="gradeRing" style="--p:0">
+          <div class="g"><div class="l" id="gradeLetter">?</div><div class="p" id="gradePct">0%</div></div>
+        </div>
+        <div class="verdict">
+          <h2 id="verdictTitle">—</h2>
+          <p id="verdictText">—</p>
+        </div>
+      </div>
+      <div class="callouts" id="callouts"></div>
+    </div>
+
+    <div class="card pad" style="margin-top:16px">
+      <h2>Your list vs the meta</h2>
+      <p class="sub">"Meta" is where the item lands among the ones you were dealt, by overall PvP / endgame value. Placing blind at random averages 50% — anything above that is real knowledge.</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>You</th><th>Item</th><th>Rarity</th><th>Meta</th><th>Call</th></tr></thead>
+          <tbody id="resultRows"></tbody>
+        </table>
+      </div>
+      <div class="actions">
+        <button class="btn" id="againBtn">Run it back</button>
+        <button class="btn ghost" id="changeBtn">Change the pool</button>
+        <button class="btn ghost" id="shareBtn">Copy result</button>
+        <span class="copied hidden" id="copied">Copied to clipboard.</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="foot">
+    Fan-made ranking game. Not affiliated with Blox Fruits, Gamer Robot or Roblox.<br>
+    Meta scores are one opinionated snapshot of community consensus — argue with them, that's the fun.
+  </div>
+</div>
+
+<script>
+/* =========================================================================
+   ITEM DATABASE  —  [name, category, rarity, metaScore(0-100), emoji, blurb]
+   metaScore = one opinionated take on overall PvP / endgame value.
+   ========================================================================= */
+const RAW = [
+/* ---------------- BLOX FRUITS ---------------- */
+["Rocket","fruit","Common",3,"🚀","The starter fruit nobody keeps past level 20."],
+["Spin","fruit","Common",5,"🌀","Spin to win — for about ten minutes."],
+["Chop","fruit","Common",8,"🔪","Immune to swords, useless against everything else."],
+["Bomb","fruit","Common",10,"💣","Explosions with all the range of a hug."],
+["Spring","fruit","Common",11,"🌱","Bounces you into fall damage more than into kills."],
+["Smoke","fruit","Common",14,"💨","Cheap logia, tiny hitboxes, forgotten fast."],
+["Spike","fruit","Common",16,"🌵","Surprisingly rude in low-level PvP."],
+["Falcon","fruit","Uncommon",20,"🦅","Free flight before you can afford real flight."],
+["Flame","fruit","Uncommon",22,"🔥","The first fruit that actually feels strong."],
+["Diamond","fruit","Uncommon",24,"💎","Tanky, slow, and mostly a stat-check."],
+["Sand","fruit","Uncommon",26,"🏜️","Bleed damage and a decent Sea 3 grinder."],
+["Dark","fruit","Uncommon",28,"🌑","Big AoE pulls — a classic early main."],
+["Ice","fruit","Uncommon",30,"❄️","Ice skating is still one of the best travel tools."],
+["Barrier","fruit","Rare",31,"🧱","Walls that troll people more than they kill."],
+["Light","fruit","Rare",34,"💡","Fastest travel in the early game, effortless grinder."],
+["Magma","fruit","Rare",38,"🌋","Sea 2's grinding king for years."],
+["Rubber","fruit","Rare",40,"🎈","Immune to Rumble, awkward at everything else."],
+["Ghost","fruit","Rare",44,"👻","Great mobility, invisibility, and a cheeky revive."],
+["Quake","fruit","Rare",46,"🌊","Huge hitboxes that shake half the island."],
+["Love","fruit","Legendary",48,"💗","Pretty, and better than people admit."],
+["Sound","fruit","Legendary",50,"🎵","Odd combos that shine once you learn the loops."],
+["Creation","fruit","Legendary",52,"🎨","Zoning tool that punishes anyone standing still."],
+["Spider","fruit","Legendary",54,"🕷️","Webs, traps and a genuinely nasty combo extender."],
+["Pain","fruit","Legendary",55,"😖","Ranged pokes with real damage behind them."],
+["Buddha","fruit","Legendary",56,"🧘","The grinding GOAT — giant hitboxes, rough in PvP."],
+["Portal","fruit","Legendary",58,"🌌","Teleport anywhere; the best travel fruit in the game."],
+["Phoenix","fruit","Legendary",60,"🔆","Flight plus self-healing — a support monster."],
+["Rumble","fruit","Legendary",62,"⚡","Old-school combo starter that still holds up."],
+["Blizzard","fruit","Legendary",64,"🌨️","Freezes, zoning, and absurd area denial."],
+["Gravity","fruit","Legendary",66,"🪐","Meteors that flatten anyone who stands still."],
+["Mammoth","fruit","Mythical",68,"🐘","Slow, heavy, and it hits like a truck."],
+["T-Rex","fruit","Mythical",70,"🦖","Enormous burst damage on a short fuse."],
+["Yeti","fruit","Mythical",74,"🥶","Freezing bruiser with a brutal grab."],
+["Shadow","fruit","Mythical",78,"🕶️","Global travel, dark AoE, permanently good."],
+["Gas","fruit","Mythical",80,"🫧","Poison zoning that never lets you breathe."],
+["Control","fruit","Mythical",82,"🎛️","Room control that ends fights outright."],
+["Venom","fruit","Mythical",84,"☠️","Chip damage that shreds bosses and players alike."],
+["Spirit","fruit","Mythical",86,"👤","Transforms into a wrecking ball with healing built in."],
+["Dough","fruit","Mythical",88,"🍩","The combo fruit — awakened Dough defined PvP."],
+["Dragon","fruit","Mythical",90,"🐉","Reworked into a full-screen destruction machine."],
+["Leopard","fruit","Mythical",92,"🐆","Speed, burst, and every sword main's dream."],
+["Kitsune","fruit","Mythical",96,"🦊","Limited, gorgeous, and absurd in the right hands."],
+/* ---------------- SWORDS ---------------- */
+["Katana","sword","Common",8,"🗡️","Your first sword. It exists."],
+["Iron Mace","sword","Common",10,"🔨","Big, dumb, and slower than a Sea 1 boat."],
+["Dual Katana","sword","Common",12,"⚔️","Two katanas, roughly one katana of value."],
+["Pipe","sword","Common",14,"🪈","Cheap blunt object with a decent stun."],
+["Koko","sword","Common",15,"🍡","Sea 1 filler that feels better than it is."],
+["Dual-Headed Blade","sword","Uncommon",16,"🔱","Spinning damage, no real combo potential."],
+["Cutlass","sword","Uncommon",18,"🏴","Pirate flavour, marine-level damage."],
+["Triple Katana","sword","Uncommon",20,"🗡️","Three blades, still just a stepping stone."],
+["Trident","sword","Rare",22,"🔱","Underwater flavour, above-water disappointment."],
+["Shark Saw","sword","Rare",26,"🦈","Fun boomerang throw, weak follow-up."],
+["Bisento","sword","Rare",30,"🌾","Long reach and a satisfying slam."],
+["Twin Hooks","sword","Rare",32,"🪝","Pulls people into your combo like a fishing rod."],
+["Soul Cane","sword","Rare",34,"🦯","Gothic style with real lingering pressure."],
+["Saddi","sword","Legendary",36,"🕉️","Underrated Sea 3 blade with serious range."],
+["Saber","sword","Legendary",38,"⚔️","The first sword people actually chase."],
+["Shisui","sword","Legendary",40,"🌸","Sea 2 classic, still a solid PvP pick."],
+["Jitte","sword","Legendary",41,"🔩","Blunt, stunning, and easy to combo off."],
+["Wando","sword","Legendary",42,"🎋","Clean damage and one of the better level-ups."],
+["Warden Sword","sword","Legendary",43,"🗝️","Prison drop that hits harder than it looks."],
+["Pole (1st Form)","sword","Legendary",44,"⚡","Ranged lightning pokes for days."],
+["Spikey Trident","sword","Legendary",45,"🔱","Sea 3 trident with a genuinely nasty stab."],
+["Midnight Blade","sword","Legendary",46,"🌙","Boss drop with scary raw damage."],
+["Buddy Sword","sword","Legendary",48,"👯","Summons a clone that fights alongside you."],
+["Canvander","sword","Legendary",50,"🪓","Heavy hitter with a huge downward slam."],
+["Gravity Cane","sword","Legendary",56,"🪄","Pulls, meteors, and pure chaos."],
+["Dark Blade","sword","Mythical",58,"🖤","The Robux flex sword — still very strong."],
+["Hallow Scythe","sword","Legendary",60,"🎃","Ranged scythe pressure and a great stun."],
+["Pole (2nd Form)","sword","Mythical",62,"🌩️","Upgraded lightning with terrifying range."],
+["Shark Anchor","sword","Legendary",64,"⚓","Slow, massive, and it deletes the careless."],
+["Rengoku","sword","Mythical",66,"🔥","Iconic Sea 2 blade with a monstrous ranged X."],
+["Dragon Trident","sword","Legendary",68,"🐲","Rare drop with huge AoE damage."],
+["Yama","sword","Mythical",74,"⛩️","Ranged slashes that dominate open ground."],
+["True Triple Katana","sword","Mythical",82,"🌟","Endgame katana with a devastating combo."],
+["Tushita","sword","Mythical",86,"🌀","Aerial slashes, great mobility, top-tier PvP."],
+["Cursed Dual Katana","sword","Mythical",94,"💀","The endgame sword — the best fused into a monster."],
+/* ---------------- GUNS ---------------- */
+["Slingshot","gun","Common",5,"🪃","It's a rubber band. On a stick."],
+["Musket","gun","Common",12,"🔫","One shot, one miss."],
+["Flintlock","gun","Common",16,"🔫","Serviceable early ranged poke."],
+["Cannon","gun","Uncommon",22,"💥","A boat weapon cosplaying as a sidearm."],
+["Refined Flintlock","gun","Rare",30,"✨","Actually accurate, actually usable."],
+["Kabucha","gun","Rare",40,"🎃","Pumpkin-shot with a surprising bonk."],
+["Bizarre Rifle","gun","Legendary",55,"🔭","Long-range sniping for the patient."],
+["Serpent Bow","gun","Legendary",72,"🏹","Homing arrows that punish runners."],
+["Acidum Rifle","gun","Legendary",76,"🧪","Acid spray that melts crowds and bosses."],
+["Soul Guitar","gun","Mythical",90,"🎸","The best gun in the game, and it's a guitar."],
+/* ---------------- FIGHTING STYLES ---------------- */
+["Combat","style","Common",6,"👊","Punching. Just punching."],
+["Black Leg","style","Common",22,"🦵","Kicks with fire — the first real upgrade."],
+["Electric","style","Common",24,"⚡","Fast, mobile, cheap: a great starter style."],
+["Water Kung Fu","style","Uncommon",26,"🌊","Wide AoE and a solid grinding tool."],
+["Dragon Breath","style","Rare",34,"🐲","Fire punches with a nice stun."],
+["Superhuman","style","Legendary",50,"💪","The classic fusion style, still respectable."],
+["Death Step","style","Legendary",64,"👞","Ghostly kicks with beautiful combo flow."],
+["Sharkman Karate","style","Legendary",66,"🦈","Blocks, counters and huge damage windows."],
+["Dragon Talon","style","Legendary",70,"🐉","Fast, high-damage kicks with great mobility."],
+["Electric Claw","style","Legendary",74,"🐾","Speed-demon style with brutal follow-ups."],
+["Sanguine Art","style","Mythical",80,"🩸","Lifesteal that makes you unkillable in duels."],
+["Godhuman","style","Mythical",92,"✨","The endgame style. Nothing else is close."],
+/* ---------------- RACES ---------------- */
+["Human","race","Common",60,"🧍","Bland until V4 — then the heals carry you."],
+["Shark","race","Rare",50,"🦈","Water immunity and a solid V4 boost."],
+["Ghoul","race","Rare",66,"🧛","Lifesteal and night power for the vampires."],
+["Cyborg","race","Legendary",72,"🤖","Damage buffs and the best raid utility."],
+["Mink","race","Rare",76,"🐇","Pure speed; V4 makes you impossible to catch."],
+["Angel","race","Legendary",84,"😇","Sky evolved — healing, flight, and a top-tier V4."],
+/* ---------------- ACCESSORIES ---------------- */
+["Bear Ears","acc","Common",12,"🐻","Adorable. Statistically meaningless."],
+["Cool Shades","acc","Common",20,"😎","Style points, nothing else."],
+["Pilot Goggles","acc","Uncommon",28,"✈️","A tiny energy bump for a big grind."],
+["Angel Wings","acc","Uncommon",30,"🕊️","Looks incredible, does very little."],
+["Pilot Helmet","acc","Rare",34,"🪖","Flight-themed stat padding."],
+["Black Cape","acc","Rare",40,"🖤","The cheap defence boost everyone owns."],
+["Dark Coat","acc","Rare",42,"🧥","Solid all-round early defence."],
+["Hunter Cape","acc","Legendary",55,"🏹","Damage boost for the mid-game grinder."],
+["Ghoul Mask","acc","Legendary",62,"👺","Lifesteal that keeps you in the fight."],
+["Swan Glasses","acc","Legendary",70,"🕶️","The classic damage-boost pick."],
+["Valkyrie Helmet","acc","Legendary",72,"🪽","Rare drop with a serious defence bump."],
+["Usoap's Hat","acc","Legendary",78,"🎩","Gun-damage boost the marksmen fight over."],
+["Pale Scarf","acc","Mythical",88,"🧣","Damage and defence in one — top of the pile."],
+["Tomoe Ring","acc","Mythical",92,"💍","Cursed accessory, best-in-slot at endgame."],
+];
+
+const ITEMS = RAW.map(function(r,i){
+  return {id:i, name:r[0], cat:r[1], rarity:r[2], meta:r[3], emoji:r[4], desc:r[5]};
+});
+
+const CATS = [
+  {key:"fruit", label:"Blox Fruits",      ico:"🍇"},
+  {key:"sword", label:"Swords",           ico:"⚔️"},
+  {key:"gun",   label:"Guns",             ico:"🔫"},
+  {key:"style", label:"Fighting Styles",  ico:"👊"},
+  {key:"race",  label:"Races",            ico:"🧬"},
+  {key:"acc",   label:"Accessories",      ico:"🎩"},
+];
+
+const RARITY_COLOR = {
+  "Common":"var(--c-common)", "Uncommon":"var(--c-uncommon)", "Rare":"var(--c-rare)",
+  "Legendary":"var(--c-legendary)", "Mythical":"var(--c-mythical)"
+};
+const RARITY_GLOW = {
+  "Common":"rgba(154,167,180,.22)", "Uncommon":"rgba(79,209,139,.25)", "Rare":"rgba(74,168,255,.28)",
+  "Legendary":"rgba(176,125,255,.3)", "Mythical":"rgba(255,145,71,.32)"
+};
+const CAT_LABEL = {fruit:"Blox Fruit", sword:"Sword", gun:"Gun", style:"Fighting Style", race:"Race", acc:"Accessory"};
+
+/* ========================= state ========================= */
+const state = {
+  cats: new Set(["fruit"]),
+  slotCount: 10,
+  draw: "balanced",
+  deck: [],
+  placed: [],     // index = slot, value = item or null
+  idx: 0,
+};
+
+const $ = function(id){ return document.getElementById(id); };
+
+/* ========================= setup screen ========================= */
+function renderCats(){
+  $("cats").innerHTML = CATS.map(function(c){
+    const n = ITEMS.filter(function(i){ return i.cat === c.key; }).length;
+    const on = state.cats.has(c.key) ? " on" : "";
+    return '<label class="cat'+on+'" data-cat="'+c.key+'">'
+      + '<span class="box"></span>'
+      + '<span class="ico">'+c.ico+'</span>'
+      + '<span><span class="nm">'+c.label+'</span><br><span class="ct">'+n+' items</span></span>'
+      + '</label>';
+  }).join("");
+  Array.prototype.forEach.call(document.querySelectorAll(".cat"), function(el){
+    el.addEventListener("click", function(){
+      const k = el.dataset.cat;
+      if (state.cats.has(k)) state.cats.delete(k); else state.cats.add(k);
+      renderCats(); refreshPool();
+    });
+  });
+}
+
+const SLOT_OPTIONS = [5,10,15,20,"ALL"];
+const DRAW_OPTIONS = [
+  {key:"balanced", label:"Balanced", note:"one item from each power band — the fairest test"},
+  {key:"chaos",    label:"Chaos",    note:"pure random; expect three commons in a row"},
+  {key:"endgame",  label:"Endgame",  note:"only the top half of the pool — no easy calls"},
+];
+
+function renderSegs(){
+  $("slotSegs").innerHTML = SLOT_OPTIONS.map(function(s){
+    const on = state.slotCount === s ? " on" : "";
+    return '<button class="seg'+on+'" data-slot="'+s+'">'+(s === "ALL" ? "Every item" : s)+'</button>';
+  }).join("");
+  $("drawSegs").innerHTML = DRAW_OPTIONS.map(function(d){
+    const on = state.draw === d.key ? " on" : "";
+    return '<button class="seg'+on+'" data-draw="'+d.key+'" title="'+d.note+'">'+d.label+'</button>';
+  }).join("");
+  Array.prototype.forEach.call(document.querySelectorAll("[data-slot]"), function(b){
+    b.onclick = function(){ state.slotCount = (b.dataset.slot === "ALL") ? "ALL" : parseInt(b.dataset.slot,10); renderSegs(); refreshPool(); };
+  });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-draw]"), function(b){
+    b.onclick = function(){ state.draw = b.dataset.draw; renderSegs(); refreshPool(); };
+  });
+}
+
+function pool(){
+  return ITEMS.filter(function(i){ return state.cats.has(i.cat); });
+}
+function effectivePool(){
+  const p = pool();
+  if (state.draw !== "endgame") return p;
+  const sorted = p.slice().sort(function(a,b){ return b.meta - a.meta; });
+  return sorted.slice(0, Math.max(5, Math.ceil(sorted.length / 2)));
+}
+function slotsWanted(){
+  const p = effectivePool();
+  return state.slotCount === "ALL" ? p.length : Math.min(state.slotCount, p.length);
+}
+
+function refreshPool(){
+  const p = pool(), ep = effectivePool(), note = $("poolNote"), btn = $("startBtn");
+  const drawNote = DRAW_OPTIONS.filter(function(d){ return d.key === state.draw; })[0].note;
+  if (p.length === 0){
+    note.innerHTML = '<span class="warn">Pick at least one category.</span>';
+    btn.disabled = true;
+  } else if (ep.length < 3){
+    note.innerHTML = '<span class="warn">That pool is too small — add a category.</span>';
+    btn.disabled = true;
+  } else {
+    btn.disabled = false;
+    note.textContent = slotsWanted() + " slots drawn from " + ep.length + " items — " + drawNote + ".";
+  }
+  showBest();
+}
+
+/* ========================= drawing ========================= */
+function shuffle(a){
+  for (let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+
+function drawDeck(){
+  const p = effectivePool().slice();
+  const n = slotsWanted();
+  if (n >= p.length) return shuffle(p);
+
+  if (state.draw === "balanced"){
+    const sorted = p.slice().sort(function(a,b){ return a.meta - b.meta; });
+    const picked = [], size = sorted.length / n;
+    for (let b = 0; b < n; b++){
+      const lo = Math.floor(b * size), hi = Math.max(lo + 1, Math.floor((b + 1) * size));
+      const band = sorted.slice(lo, hi);
+      picked.push(band[Math.floor(Math.random() * band.length)]);
+    }
+    // de-dupe defensively, then top up at random
+    const seen = {}, out = [];
+    picked.forEach(function(it){ if (!seen[it.id]){ seen[it.id] = 1; out.push(it); } });
+    const rest = shuffle(p.filter(function(it){ return !seen[it.id]; }));
+    while (out.length < n && rest.length) out.push(rest.pop());
+    return shuffle(out);
+  }
+  return shuffle(p).slice(0, n);
+}
+
+/* ========================= game ========================= */
+function startGame(){
+  state.deck = drawDeck();
+  state.placed = new Array(state.deck.length).fill(null);
+  state.idx = 0;
+  $("setup").classList.add("hidden");
+  $("results").classList.add("hidden");
+  $("game").classList.remove("hidden");
+  renderSlots();
+  showItem();
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+function keyFor(i){
+  if (i < 9) return String(i + 1);
+  if (i === 9) return "0";
+  return "";
+}
+
+function renderSlots(){
+  $("slots").innerHTML = state.placed.map(function(it, i){
+    if (it){
+      return '<div class="slot filled" style="border-color:'+RARITY_COLOR[it.rarity]+'55">'
+        + '<span class="rank">#'+(i+1)+'</span>'
+        + '<span class="em">'+it.emoji+'</span>'
+        + '<span class="txt"><span class="nm">'+it.name+'</span>'
+        + '<span class="meta" style="color:'+RARITY_COLOR[it.rarity]+'">'+it.rarity+' · '+CAT_LABEL[it.cat]+'</span></span>'
+        + '</div>';
+    }
+    const k = keyFor(i);
+    return '<button class="slot open" data-slot-i="'+i+'">'
+      + '<span class="rank">#'+(i+1)+'</span>'
+      + '<span class="txt"><span class="ph">'+(i === 0 ? "Best of the run" : (i === state.placed.length - 1 ? "Worst of the run" : "Empty slot"))+'</span></span>'
+      + (k ? '<span class="key">'+k+'</span>' : '')
+      + '</button>';
+  }).join("");
+  Array.prototype.forEach.call(document.querySelectorAll("[data-slot-i]"), function(b){
+    b.onclick = function(){ place(parseInt(b.dataset.slotI, 10)); };
+  });
+}
+
+function showItem(){
+  const it = state.deck[state.idx];
+  const total = state.deck.length;
+  $("itemIdx").textContent = (state.idx + 1) + " of " + total;
+  $("itemEmoji").textContent = it.emoji;
+  // restart the pop animation
+  const em = $("itemEmoji");
+  em.style.animation = "none"; void em.offsetWidth; em.style.animation = "";
+  $("itemName").textContent = it.name;
+  $("itemRarity").textContent = it.rarity;
+  $("itemRarity").style.color = RARITY_COLOR[it.rarity];
+  $("itemCat").textContent = CAT_LABEL[it.cat];
+  $("itemDesc").textContent = it.desc;
+  $("revealCard").style.setProperty("--glow", RARITY_GLOW[it.rarity]);
+
+  const left = state.placed.filter(function(x){ return !x; }).length;
+  $("hudRound").textContent = "Item " + (state.idx + 1) + " / " + total;
+  $("hudPool").textContent = catSummary();
+  $("hudLeft").textContent = left + " slot" + (left === 1 ? "" : "s") + " open";
+  $("progBar").style.width = (state.idx / total * 100) + "%";
+}
+
+function catSummary(){
+  return CATS.filter(function(c){ return state.cats.has(c.key); })
+             .map(function(c){ return c.ico; }).join(" ") + "  " + state.draw;
+}
+
+function place(slotIndex){
+  if (state.placed[slotIndex]) return;
+  state.placed[slotIndex] = state.deck[state.idx];
+  state.idx++;
+  renderSlots();
+  if (state.idx >= state.deck.length) finish();
+  else showItem();
+}
+
+document.addEventListener("keydown", function(e){
+  if ($("game").classList.contains("hidden")) return;
+  let i = -1;
+  if (e.key >= "1" && e.key <= "9") i = parseInt(e.key, 10) - 1;
+  else if (e.key === "0") i = 9;
+  if (i >= 0 && i < state.placed.length && !state.placed[i]){ e.preventDefault(); place(i); }
+});
+
+/* ========================= scoring ========================= */
+function score(){
+  const yours = state.placed.slice();           // slot order = your ranking
+  const metaSorted = yours.slice().sort(function(a,b){ return b.meta - a.meta; });
+  const metaRank = {};
+  metaSorted.forEach(function(it, i){ metaRank[it.id] = i + 1; });
+
+  let concordant = 0, comparable = 0;
+  for (let a = 0; a < yours.length; a++){
+    for (let b = a + 1; b < yours.length; b++){
+      if (yours[a].meta === yours[b].meta) continue;
+      comparable++;
+      if (yours[a].meta > yours[b].meta) concordant++;
+    }
+  }
+  const pct = comparable ? Math.round(concordant / comparable * 100) : 100;
+
+  const rows = yours.map(function(it, i){
+    return {item:it, you:i + 1, meta:metaRank[it.id], delta:metaRank[it.id] - (i + 1)};
+  });
+  return {pct:pct, rows:rows, metaSorted:metaSorted};
+}
+
+function gradeOf(p){
+  if (p >= 97) return {l:"S+", t:"Certified fruit scholar", d:"A near-perfect blind read. You have played far too much of this game, and it shows."};
+  if (p >= 92) return {l:"S",  t:"Grand Master ranker", d:"Excellent. A couple of slots off, but you clearly know what actually wins fights."};
+  if (p >= 85) return {l:"A",  t:"Sea 3 veteran", d:"Strong list. Your top end is honest and only the mid-tier tripped you up."};
+  if (p >= 78) return {l:"B",  t:"Solid raider", d:"Respectable. You know the big names — the middle of your list is where you leaked points."};
+  if (p >= 70) return {l:"C",  t:"Sea 2 wanderer", d:"Decent, not clean. Blind ranking punished you: a couple of early slots were spent too cheaply."};
+  if (p >= 60) return {l:"D",  t:"Bounty hunter in training", d:"Barely ahead of guessing. You burned your top slots early and had nowhere to put the good stuff."};
+  if (p >= 45) return {l:"E",  t:"Coin-flip captain", d:"Statistically indistinguishable from placing items at random. Rough draw, rougher calls."};
+  return {l:"F", t:"Still using Chop", d:"Genuinely impressive in the other direction — most of your pairs are backwards."};
+}
+
+function deltaChip(d){
+  const a = Math.abs(d);
+  const cls = a === 0 ? "ok" : (a <= 2 ? "mid" : "off");
+  const txt = a === 0 ? "Spot on" : (d > 0 ? "Overrated " + a : "Underrated " + a);
+  return '<span class="delta '+cls+'">'+txt+'</span>';
+}
+
+function finish(){
+  const s = score();
+  $("game").classList.add("hidden");
+  $("results").classList.remove("hidden");
+
+  const g = gradeOf(s.pct);
+  $("gradeRing").style.setProperty("--p", s.pct);
+  $("gradeLetter").textContent = g.l;
+  $("gradePct").textContent = s.pct + "%";
+  $("verdictTitle").textContent = g.t;
+  $("verdictText").textContent = g.d;
+
+  const sortedByErr = s.rows.slice().sort(function(a,b){ return Math.abs(b.delta) - Math.abs(a.delta); });
+  const worst = sortedByErr[0];
+  const best = s.rows.slice().sort(function(a,b){
+    return (Math.abs(a.delta) - Math.abs(b.delta)) || (b.item.meta - a.item.meta);
+  })[0];
+  const trueBest = s.metaSorted[0];
+  const yourTop = s.rows[0].item;
+
+  $("callouts").innerHTML = [
+    ["Your #1", yourTop.emoji + " " + yourTop.name,
+      yourTop.id === trueBest.id ? "Nailed it — that is the strongest thing you were dealt."
+                                 : "The meta pick was " + trueBest.emoji + " " + trueBest.name + "."],
+    ["Best call", best.item.emoji + " " + best.item.name,
+      "You put it at #" + best.you + ", the meta says #" + best.meta + "."],
+    ["Biggest miss",
+      worst.delta === 0 ? "None" : worst.item.emoji + " " + worst.item.name,
+      worst.delta === 0 ? "Not a single item out of place. Flawless run."
+        : (worst.delta > 0 ? "You ranked it " + worst.delta + " slot" + (worst.delta === 1 ? "" : "s") + " too high."
+                           : "You buried it " + (-worst.delta) + " slot" + (worst.delta === -1 ? "" : "s") + " too low.")],
+    ["Pairs called right", (function(){
+        let c = 0, t = 0;
+        for (let a = 0; a < s.rows.length; a++) for (let b = a + 1; b < s.rows.length; b++){
+          if (s.rows[a].item.meta === s.rows[b].item.meta) continue;
+          t++; if (s.rows[a].item.meta > s.rows[b].item.meta) c++;
+        }
+        return c + " / " + t;
+      })(), "Every possible head-to-head inside your list."],
+  ].map(function(c){
+    return '<div class="callout"><div class="t">'+c[0]+'</div><div class="v">'+c[1]+'</div><div class="d">'+c[2]+'</div></div>';
+  }).join("");
+
+  $("resultRows").innerHTML = s.rows.map(function(r){
+    return '<tr>'
+      + '<td class="num">#'+r.you+'</td>'
+      + '<td class="item"><span class="em">'+r.item.emoji+'</span>'+r.item.name+'</td>'
+      + '<td style="color:'+RARITY_COLOR[r.item.rarity]+';white-space:nowrap">'+r.item.rarity+'</td>'
+      + '<td class="num">#'+r.meta+'</td>'
+      + '<td>'+deltaChip(r.delta)+'</td>'
+      + '</tr>';
+  }).join("");
+
+  saveBest(s.pct);
+  $("copied").classList.add("hidden");
+  $("shareBtn").dataset.text =
+    "Blox Fruits Blind Ranking — " + s.pct + "% (" + g.l + ")\n" +
+    s.rows.length + " slots · " + state.draw + " draw\n" +
+    s.rows.slice(0, 3).map(function(r){ return "#" + r.you + " " + r.item.emoji + " " + r.item.name; }).join("\n");
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+/* ========================= best score ========================= */
+function bestKey(){
+  return "bfbr:" + CATS.map(function(c){ return state.cats.has(c.key) ? 1 : 0; }).join("") + ":" + state.slotCount + ":" + state.draw;
+}
+function saveBest(pct){
+  try {
+    const k = bestKey(), prev = parseInt(localStorage.getItem(k) || "0", 10);
+    if (pct > prev) localStorage.setItem(k, String(pct));
+  } catch (e) {}
+  showBest();
+}
+function showBest(){
+  let v = 0;
+  try { v = parseInt(localStorage.getItem(bestKey()) || "0", 10); } catch (e) {}
+  $("bestBox").innerHTML = v
+    ? 'Best on this setup<br><b>' + v + '%</b>'
+    : 'No run on this setup yet<br><b>—</b>';
+}
+
+/* ========================= wiring ========================= */
+$("startBtn").onclick = startGame;
+$("againBtn").onclick = startGame;
+$("changeBtn").onclick = function(){
+  $("results").classList.add("hidden");
+  $("setup").classList.remove("hidden");
+  refreshPool();
+};
+$("quitBtn").onclick = function(){
+  $("game").classList.add("hidden");
+  $("setup").classList.remove("hidden");
+  refreshPool();
+};
+$("shareBtn").onclick = function(){
+  const t = $("shareBtn").dataset.text || "";
+  const done = function(){ $("copied").classList.remove("hidden"); setTimeout(function(){ $("copied").classList.add("hidden"); }, 2200); };
+  if (navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(t).then(done, function(){ window.prompt("Copy your result:", t); });
+  } else {
+    window.prompt("Copy your result:", t);
+  }
+};
+
+renderCats();
+renderSegs();
+refreshPool();
+</script>
+</body>
+</html>
