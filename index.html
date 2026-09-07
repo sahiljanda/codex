@@ -6,22 +6,10 @@
 <title>Blox Fruits Loadout Auction</title>
 <style>
   :root{
-    --bg2:#0b1725;
-    --panel:#112133;
-    --line:#23405c;
-    --text:#e8f1fa;
-    --muted:#8fa6bd;
-    --gold:#f5c451;
-    --gold-dim:#a8842c;
-    --good:#4fd18b;
-    --bad:#ff6b81;
-    --p1:#4aa8ff;
-    --p2:#ff8a4a;
-    --c-common:#9aa7b4;
-    --c-uncommon:#4fd18b;
-    --c-rare:#4aa8ff;
-    --c-legendary:#b07dff;
-    --c-mythical:#ff9147;
+    --bg2:#0b1725; --panel:#112133; --line:#23405c; --text:#e8f1fa; --muted:#8fa6bd;
+    --gold:#f5c451; --gold-dim:#a8842c; --good:#4fd18b; --bad:#ff6b81;
+    --p1:#4aa8ff; --p2:#ff8a4a;
+    --c-common:#9aa7b4; --c-uncommon:#4fd18b; --c-rare:#4aa8ff; --c-legendary:#b07dff; --c-mythical:#ff9147;
     --radius:14px;
   }
   *{box-sizing:border-box}
@@ -38,20 +26,16 @@
 
   header.top{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
   header.top .mark{font-size:32px;filter:drop-shadow(0 0 10px rgba(245,196,81,.45))}
-  h1{
-    margin:0;font-size:25px;letter-spacing:.6px;line-height:1.1;
-    background:linear-gradient(180deg,#ffe9a8,#f5c451 55%,#c08c22);
-    -webkit-background-clip:text;background-clip:text;color:transparent;
-  }
+  h1{margin:0;font-size:25px;letter-spacing:.6px;line-height:1.1;
+     background:linear-gradient(180deg,#ffe9a8,#f5c451 55%,#c08c22);
+     -webkit-background-clip:text;background-clip:text;color:transparent}
   .tagline{color:var(--muted);font-size:13px;margin-top:3px}
   .record{margin-left:auto;font-size:12px;color:var(--muted);text-align:right;line-height:1.5}
   .record b{color:var(--gold);font-size:14px}
 
-  .card{
-    background:linear-gradient(180deg,var(--panel) 0%, var(--bg2) 100%);
-    border:1px solid var(--line);border-radius:var(--radius);
-    box-shadow:0 10px 30px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.04);
-  }
+  .card{background:linear-gradient(180deg,var(--panel) 0%, var(--bg2) 100%);
+        border:1px solid var(--line);border-radius:var(--radius);
+        box-shadow:0 10px 30px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.04)}
   .pad{padding:18px}
   h2{margin:0 0 4px;font-size:17px;letter-spacing:.4px}
   .sub{color:var(--muted);font-size:13px;margin:0 0 14px;line-height:1.6}
@@ -64,125 +48,144 @@
   .seg.on{background:linear-gradient(180deg,#f5c451,#d09f2c);color:#1b1305;border-color:#f5c451;font-weight:bold}
   .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}
   .field{margin-bottom:16px}
-  input.txt{
-    width:100%;padding:11px 13px;border-radius:10px;border:1px solid var(--line);
-    background:#0b1826;color:var(--text);font:inherit;font-size:14.5px;
-  }
+  input.txt{width:100%;padding:11px 13px;border-radius:10px;border:1px solid var(--line);
+            background:#0b1826;color:var(--text);font:inherit;font-size:14.5px}
   input.txt:focus{outline:none;border-color:var(--gold-dim);box-shadow:0 0 0 3px rgba(245,196,81,.12)}
 
   .btn{font:inherit;font-size:15px;font-weight:bold;letter-spacing:.4px;cursor:pointer;
-    padding:13px 26px;border-radius:12px;border:1px solid #f5c451;
-    background:linear-gradient(180deg,#ffd873,#e0a92f);color:#1b1305;
-    box-shadow:0 6px 18px rgba(245,196,81,.22);transition:.15s}
+       padding:13px 24px;border-radius:12px;border:1px solid #f5c451;
+       background:linear-gradient(180deg,#ffd873,#e0a92f);color:#1b1305;
+       box-shadow:0 6px 18px rgba(245,196,81,.22);transition:.15s}
   .btn:hover{transform:translateY(-1px)}
-  .btn:active{transform:none}
   .btn.ghost{background:transparent;color:var(--text);border-color:var(--line);box-shadow:none}
   .btn.ghost:hover{border-color:#3a6b96;background:rgba(255,255,255,.04)}
-  .btn.sm{padding:8px 14px;font-size:13px}
+  .btn.danger{background:transparent;color:var(--bad);border-color:rgba(255,107,129,.5);box-shadow:none}
+  .btn.danger:hover{background:rgba(255,107,129,.1)}
+  .btn.sm{padding:8px 13px;font-size:13px}
   .btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
 
-  /* ---------- player bar ---------- */
-  .players{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:14px}
-  .pcard{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:rgba(255,255,255,.02);position:relative;overflow:hidden}
+  /* ---------- top bar ---------- */
+  .players{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:12px}
+  .pcard{border:1px solid var(--line);border-radius:12px;padding:10px 13px;background:rgba(255,255,255,.02);
+         position:relative;overflow:hidden;display:flex;align-items:center;gap:12px}
   .pcard::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent)}
   .pcard.p1{--accent:var(--p1)} .pcard.p2{--accent:var(--p2)}
   .pcard.turn{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset, 0 0 22px -8px var(--accent)}
-  .pcard .nm{font-weight:bold;font-size:15px;display:flex;align-items:center;gap:7px}
+  .pcard .nm{font-weight:bold;font-size:14.5px;display:flex;align-items:center;gap:7px;min-width:0}
   .pcard .nm .dot{width:9px;height:9px;border-radius:50%;background:var(--accent);flex:none}
-  .pcard .cash{font-size:26px;font-weight:bold;color:var(--gold);line-height:1.2;font-variant-numeric:tabular-nums}
-  .pcard .own{font-size:12px;color:var(--muted);min-height:17px}
-  .pcard .own span{color:var(--text)}
+  .pcard .cash{margin-left:auto;font-size:22px;font-weight:bold;color:var(--gold);font-variant-numeric:tabular-nums}
+  .pcard .now{font-size:10px;letter-spacing:1.1px;text-transform:uppercase;color:var(--accent);flex:none}
 
-  /* ---------- lot board ---------- */
-  .board{display:flex;gap:8px;margin-bottom:14px;overflow-x:auto;padding-bottom:4px}
-  .lotchip{
-    flex:1;min-width:126px;border:1px solid var(--line);border-radius:11px;padding:9px 11px;
-    background:rgba(255,255,255,.02);font-size:12px;transition:.18s;position:relative
-  }
-  .lotchip .no{font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted)}
-  .lotchip .nm{font-weight:bold;font-size:13px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .lotchip .sold{font-size:11px;margin-top:3px}
-  .lotchip.now{border-color:var(--gold);background:rgba(245,196,81,.1);box-shadow:0 0 20px -8px var(--gold)}
-  .lotchip.done{opacity:.62}
+  /* ---------- lot strip ---------- */
+  .strip{display:flex;gap:7px;margin-bottom:12px;overflow-x:auto;padding-bottom:4px}
+  .sc{flex:1;min-width:112px;border:1px solid var(--line);border-radius:10px;padding:8px 10px;
+      background:rgba(255,255,255,.02);font-size:11.5px}
+  .sc .no{font-size:10px;letter-spacing:1.1px;text-transform:uppercase;color:var(--muted)}
+  .sc .nm{font-weight:bold;font-size:12.5px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sc .px{margin-top:2px}
+  .sc.now{border-color:var(--gold);background:rgba(245,196,81,.1);box-shadow:0 0 20px -8px var(--gold)}
+  .sc.future{opacity:.5}
+  .sc.future .nm{color:var(--muted)}
 
-  /* ---------- lot + bidding ---------- */
+  /* ---------- stage ---------- */
   .stage{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:stretch}
-  .lot{position:relative;overflow:hidden;text-align:center;padding:22px 20px}
+  .lot{position:relative;overflow:hidden;text-align:center;padding:20px}
   .lot::before{content:"";position:absolute;inset:-40% -10% auto;height:150%;
     background:radial-gradient(circle at 50% 0%, var(--glow,rgba(245,196,81,.25)) 0%, transparent 62%);pointer-events:none}
   .lot > *{position:relative}
   .kicker{font-size:11px;letter-spacing:1.6px;text-transform:uppercase;color:var(--muted)}
-  .lot .em{font-size:58px;line-height:1;display:block;margin:10px 0 6px;animation:pop .35s ease}
+  .lot .em{font-size:56px;line-height:1;display:block;margin:10px 0 6px;animation:pop .35s ease}
   @keyframes pop{from{transform:scale(.6) rotate(-8deg);opacity:0}to{transform:none;opacity:1}}
-  .lot .nm{font-size:26px;font-weight:bold;margin:0}
+  .lot .nm{font-size:25px;font-weight:bold;margin:0}
   .tags{display:flex;gap:8px;justify-content:center;margin:10px 0;flex-wrap:wrap}
-  .tag{font-size:11.5px;padding:4px 10px;border-radius:999px;border:1px solid currentColor;font-weight:bold;letter-spacing:.4px}
+  .tag{font-size:11.5px;padding:4px 10px;border-radius:999px;border:1px solid currentColor;font-weight:bold}
   .tag.dim{color:var(--muted);border-color:var(--line);background:rgba(255,255,255,.03)}
-  .rating{display:inline-flex;align-items:baseline;gap:7px;margin:4px 0 8px;padding:6px 14px;border-radius:10px;
-    border:1px solid var(--line);background:rgba(255,255,255,.03)}
-  .rating b{font-size:23px;color:var(--gold);font-variant-numeric:tabular-nums}
+  .rating{display:inline-flex;align-items:baseline;gap:7px;margin:2px 0 8px;padding:6px 14px;border-radius:10px;
+          border:1px solid var(--line);background:rgba(255,255,255,.03)}
+  .rating b{font-size:22px;color:var(--gold);font-variant-numeric:tabular-nums}
   .rating span{font-size:10.5px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted)}
   .lot .desc{color:#b9cde0;font-size:13.5px;line-height:1.6;margin:2px auto 0;max-width:330px;min-height:44px}
+  .ownwarn{margin-top:10px;font-size:12px;color:var(--bad);border:1px solid rgba(255,107,129,.35);
+           background:rgba(255,107,129,.08);border-radius:9px;padding:7px 10px;line-height:1.5}
+  .newcat{margin-top:10px;font-size:12px;color:var(--good);border:1px solid rgba(79,209,139,.3);
+          background:rgba(79,209,139,.08);border-radius:9px;padding:7px 10px;line-height:1.5}
 
-  .bidpane{display:flex;flex-direction:column;justify-content:center;padding:20px}
-  .whose{font-size:12px;letter-spacing:1.3px;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
-  .whoname{font-size:21px;font-weight:bold;margin-bottom:3px}
-  .bidhint{color:var(--muted);font-size:12.5px;margin-bottom:14px;line-height:1.55}
-  .bidrow{display:flex;gap:9px;align-items:center;margin-bottom:11px}
-  .bidin{
-    flex:1;min-width:0;font:inherit;font-size:27px;font-weight:bold;letter-spacing:3px;text-align:center;
-    padding:11px 12px;border-radius:12px;border:1px solid var(--line);background:#0b1826;color:var(--gold);
-  }
-  .bidin:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(245,196,81,.14)}
-  .dollar{font-size:26px;font-weight:bold;color:var(--gold-dim)}
-  .quick{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:13px}
-  .err{color:var(--bad);font-size:12.5px;min-height:18px;margin-bottom:8px}
+  /* ---------- bidding ---------- */
+  .bidpane{display:flex;flex-direction:column;padding:18px}
+  .standing{text-align:center;padding:6px 0 10px;border-bottom:1px solid var(--line);margin-bottom:12px}
+  .standing .lbl2{font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted)}
+  .standing .amt{font-size:38px;font-weight:bold;color:var(--gold);line-height:1.15;font-variant-numeric:tabular-nums}
+  .standing .by{font-size:12.5px;color:var(--muted)}
+  .ticker{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;min-height:24px}
+  .tick{font-size:11.5px;border:1px solid var(--line);border-radius:999px;padding:3px 9px;background:rgba(255,255,255,.02)}
+  .tick.p1{color:var(--p1);border-color:rgba(74,168,255,.4)}
+  .tick.p2{color:var(--p2);border-color:rgba(255,138,74,.4)}
+  .tick.out{color:var(--muted);border-style:dashed}
+  .turnline{font-size:15px;font-weight:bold;margin-bottom:3px}
+  .turnsub{font-size:12.5px;color:var(--muted);line-height:1.55;margin-bottom:12px}
+  .raiserow{display:flex;gap:8px;align-items:center;margin-bottom:10px}
+  .raiserow .dollar{font-size:22px;font-weight:bold;color:var(--gold-dim)}
+  .raisein{flex:1;min-width:0;font:inherit;font-size:24px;font-weight:bold;text-align:center;
+           padding:9px 10px;border-radius:11px;border:1px solid var(--line);background:#0b1826;color:var(--gold)}
+  .raisein:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(245,196,81,.14)}
+  .quick{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:11px}
+  .err{color:var(--bad);font-size:12.5px;min-height:18px;margin-bottom:6px}
+  .actrow{display:flex;gap:9px;flex-wrap:wrap;margin-top:auto}
+  .actrow .btn{flex:1;min-width:120px}
+  .thinking{display:flex;align-items:center;gap:9px;color:var(--muted);font-size:14px;padding:14px 0}
+  .dots span{animation:blink 1.1s infinite;font-size:22px;line-height:0}
+  .dots span:nth-child(2){animation-delay:.18s} .dots span:nth-child(3){animation-delay:.36s}
+  @keyframes blink{0%,60%,100%{opacity:.25}30%{opacity:1}}
 
-  .reveal{text-align:center;padding:22px}
-  .bidsrow{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;margin:14px 0 6px}
-  .bidbox{border:1px solid var(--line);border-radius:12px;padding:12px;background:rgba(255,255,255,.02)}
-  .bidbox.win{border-color:var(--gold);background:rgba(245,196,81,.1)}
-  .bidbox .who{font-size:12px;color:var(--muted);margin-bottom:3px}
-  .bidbox .amt{font-size:26px;font-weight:bold;font-variant-numeric:tabular-nums}
-  .vs{color:var(--muted);font-size:13px;letter-spacing:1.4px}
-  .outcome{font-size:16px;margin:10px 0 4px;line-height:1.6}
+  .reveal{text-align:center;padding:20px;display:flex;flex-direction:column;justify-content:center}
+  .outcome{font-size:16px;margin:8px 0 4px;line-height:1.65}
   .outcome b{color:var(--gold)}
+  .soldprice{font-size:40px;font-weight:bold;color:var(--gold);margin:6px 0}
 
-  .handoff{text-align:center;padding:34px 20px}
-  .handoff .big{font-size:44px;margin-bottom:8px}
+  /* ---------- the floor (bottom display) ---------- */
+  .floor{margin-top:16px}
+  .floorhd{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+  .floorhd h2{margin:0}
+  .floorhd .note{font-size:12px;color:var(--muted)}
+  .cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+  .fcol{border:1px solid var(--line);border-radius:12px;padding:12px 13px;background:rgba(255,255,255,.02);position:relative}
+  .fcol.lead{border-color:var(--gold);background:rgba(245,196,81,.06)}
+  .fhd{display:flex;align-items:center;gap:8px;margin-bottom:9px;padding-bottom:9px;border-bottom:1px solid var(--line)}
+  .fhd .dot{width:9px;height:9px;border-radius:50%;flex:none}
+  .fhd .n{font-weight:bold;font-size:14.5px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .fhd .sc2{margin-left:auto;font-size:20px;font-weight:bold;color:var(--gold);font-variant-numeric:tabular-nums}
+  .fhd .sc2 small{font-size:10px;color:var(--muted);letter-spacing:1px;display:block;text-align:right;font-weight:normal}
+  .fitem{display:flex;align-items:center;gap:9px;padding:5px 0;font-size:13px;border-bottom:1px solid rgba(35,64,92,.4)}
+  .fitem:last-of-type{border-bottom:none}
+  .fitem .e{font-size:17px;flex:none}
+  .fitem .t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .fitem .t small{color:var(--muted);font-size:11px}
+  .fitem .pp{flex:none;font-weight:bold;font-variant-numeric:tabular-nums}
+  .fitem.benched .t{color:var(--muted)}
+  .bench{font-size:9.5px;color:var(--bad);border:1px solid rgba(255,107,129,.4);border-radius:5px;padding:1px 4px;margin-left:5px}
+  .fnone{color:var(--muted);font-size:12.5px;font-style:italic;padding:8px 0}
+  .fmoney{display:flex;justify-content:space-between;gap:10px;margin-top:10px;padding-top:9px;
+          border-top:1px dashed var(--line);font-size:12.5px;color:var(--muted)}
+  .fmoney b{color:var(--gold);font-size:15px}
+  .fmoney .cats{color:var(--text)}
 
   /* ---------- results ---------- */
-  .banner{text-align:center;padding:26px 20px}
-  .banner .crown{font-size:46px}
-  .banner h2{font-size:27px;margin:8px 0 6px}
+  .banner{text-align:center;padding:24px 20px}
+  .banner .crown{font-size:44px}
+  .banner h2{font-size:26px;margin:8px 0 6px}
   .banner p{margin:0;color:#b9cde0;font-size:14px;line-height:1.65}
-  .invs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:14px}
-  .inv .hd{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--line)}
-  .inv .hd .n{font-weight:bold;font-size:16px;display:flex;align-items:center;gap:7px}
-  .inv .hd .n .dot{width:9px;height:9px;border-radius:50%;flex:none}
-  .inv .hd .tot{font-size:25px;font-weight:bold;color:var(--gold);font-variant-numeric:tabular-nums}
-  .irow{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(35,64,92,.45);font-size:13.5px}
-  .irow:last-of-type{border-bottom:none}
-  .irow .e{font-size:19px;flex:none}
-  .irow .t{flex:1;min-width:0}
-  .irow .t .nn{display:block;font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .irow .t .mm{display:block;font-size:11.5px;color:var(--muted)}
-  .irow .pts{font-weight:bold;font-variant-numeric:tabular-nums;flex:none}
-  .bench{font-size:10px;color:var(--bad);border:1px solid rgba(255,107,129,.4);border-radius:5px;padding:1px 5px;margin-left:6px}
-  .empty{color:var(--muted);font-size:13px;font-style:italic;padding:14px 0}
-  .calc{margin-top:11px;padding-top:11px;border-top:1px dashed var(--line);font-size:12.5px;color:var(--muted);line-height:1.9}
-  .calc b{color:var(--text)}
-  .calc .win{color:var(--good)}
+  .calc{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);font-size:12.5px;color:var(--muted);line-height:1.9}
+  .calc b{color:var(--text)} .calc .win{color:var(--good)}
   .actions{display:flex;gap:11px;margin-top:18px;flex-wrap:wrap;justify-content:center}
-
   .rules{margin-top:14px;font-size:12.5px;color:var(--muted);line-height:1.8}
   .rules b{color:var(--text)}
   .foot{margin-top:24px;text-align:center;color:#546d86;font-size:11.5px;line-height:1.7}
   .hidden{display:none !important}
   @media (max-width:820px){
     .stage{grid-template-columns:minmax(0,1fr)}
-    .invs{grid-template-columns:minmax(0,1fr)}
+    .cols{grid-template-columns:minmax(0,1fr)}
     .lot .nm{font-size:22px}
+    .standing .amt{font-size:32px}
   }
 </style>
 </head>
@@ -193,7 +196,7 @@
     <div class="mark">💰</div>
     <div>
       <h1>BLOX FRUITS · LOADOUT AUCTION</h1>
-      <div class="tagline">$20 each. Five lots. Sealed bids. Best PvP inventory wins.</div>
+      <div class="tagline">Equal purses. Bid each other up. Best PvP inventory wins.</div>
     </div>
     <div class="record" id="record"></div>
   </header>
@@ -201,7 +204,9 @@
   <!-- ================= SETUP ================= -->
   <section id="setup" class="card pad">
     <h2>Set up the auction</h2>
-    <p class="sub">Five items go under the hammer, revealed up front. Both captains bid in secret on each lot — high bid wins it and pays what they bid. Spend early and you may be broke when the Godhuman drops.</p>
+    <p class="sub">Items come out one at a time — you never see what's next. Bid back and forth until someone
+    folds; last raise standing takes the item and pays what they said. Blow your budget on lot 1 and you'll
+    watch the Godhuman go for a dollar.</p>
 
     <div class="grid2">
       <div>
@@ -250,7 +255,7 @@
   <!-- ================= PLAY ================= -->
   <section id="play" class="hidden">
     <div class="players" id="playerBar"></div>
-    <div class="board" id="board"></div>
+    <div class="strip" id="strip"></div>
 
     <div class="stage">
       <div class="card lot" id="lotCard">
@@ -263,38 +268,34 @@
         </div>
         <div class="rating"><b id="lotPow">0</b><span>PvP rating</span></div>
         <p class="desc" id="lotDesc"></p>
+        <div id="lotFlag"></div>
       </div>
 
       <div class="card bidpane" id="bidPane">
-        <div class="whose" id="bidWhose">Sealed bid</div>
-        <div class="whoname" id="bidWho">—</div>
-        <div class="bidhint" id="bidHint">—</div>
-        <div class="bidrow">
-          <span class="dollar">$</span>
-          <input class="bidin" id="bidIn" inputmode="numeric" autocomplete="off" value="0">
+        <div class="standing">
+          <div class="lbl2" id="standLbl">No bids yet</div>
+          <div class="amt" id="standAmt">$0</div>
+          <div class="by" id="standBy">Opening bid is $1</div>
         </div>
-        <div class="quick" id="quickRow"></div>
-        <div class="err" id="bidErr"></div>
-        <button class="btn" id="bidBtn">Lock in bid</button>
-      </div>
-
-      <div class="card handoff hidden" id="handoffPane">
-        <div class="big">🤫</div>
-        <h2 id="handoffTitle">Pass the device</h2>
-        <p class="sub" id="handoffText">—</p>
-        <button class="btn" id="handoffBtn">I'm ready</button>
+        <div class="ticker" id="ticker"></div>
+        <div id="bidBody"></div>
       </div>
 
       <div class="card reveal hidden" id="revealPane">
-        <div class="kicker">Bids opened</div>
-        <div class="bidsrow">
-          <div class="bidbox" id="rb1"><div class="who" id="rw1">—</div><div class="amt" id="ra1">$0</div></div>
-          <div class="vs">VS</div>
-          <div class="bidbox" id="rb2"><div class="who" id="rw2">—</div><div class="amt" id="ra2">$0</div></div>
-        </div>
+        <div class="kicker" id="revKick">Sold</div>
+        <div class="soldprice" id="revPrice">$0</div>
         <p class="outcome" id="outcome">—</p>
         <button class="btn" id="nextBtn">Next lot</button>
       </div>
+    </div>
+
+    <!-- bottom display -->
+    <div class="card pad floor" id="floor">
+      <div class="floorhd">
+        <h2>The floor</h2>
+        <span class="note" id="floorNote">Live inventories, cash and score</span>
+      </div>
+      <div class="cols" id="floorCols"></div>
     </div>
   </section>
 
@@ -305,7 +306,10 @@
       <h2 id="winTitle">—</h2>
       <p id="winText">—</p>
     </div>
-    <div class="invs" id="invs"></div>
+    <div class="card pad floor" style="margin-top:14px">
+      <div class="floorhd"><h2>Final loadouts</h2><span class="note">Bench gear counts 30% · +6 per extra category</span></div>
+      <div class="cols" id="finalCols"></div>
+    </div>
     <div class="actions">
       <button class="btn" id="rematchBtn">Rematch — new lots</button>
       <button class="btn ghost" id="newBtn">Change the setup</button>
@@ -449,6 +453,7 @@ const RAW = [
 const ITEMS = RAW.map(function(r,i){
   return {id:i, name:r[0], cat:r[1], rarity:r[2], meta:r[3], emoji:r[4], desc:r[5]};
 });
+const POOL_AVG = ITEMS.reduce(function(s,i){ return s+i.meta; },0) / ITEMS.length;
 
 const RARITY_COLOR = {Common:"var(--c-common)", Uncommon:"var(--c-uncommon)", Rare:"var(--c-rare)",
                       Legendary:"var(--c-legendary)", Mythical:"var(--c-mythical)"};
@@ -459,47 +464,48 @@ const CAT_LABEL = {fruit:"Blox Fruit", sword:"Sword", gun:"Gun", style:"Fighting
 const BENCH_MULT = 0.3;   // second+ item in a category you already own
 const COVER_BONUS = 6;    // per extra category covered
 
+const AI_TUNE = {
+  mult:  [0.85, 1.05, 1.15],   // overall willingness to pay, per level
+  exp:   [1.00, 1.30, 2.10],   // how sharply value scales with how good the item is
+  noise: [0.50, 0.20, 0.07]    // wobble in the valuation
+};
+
 const AI_LEVELS = [
-  {key:0, label:"Rookie",  name:"Deckhand Dobo",  note:"Overpays for junk, panics on the good lots. Free money."},
-  {key:1, label:"Pirate",  name:"Captain Marla",  note:"Values items honestly and paces her budget. A fair fight."},
-  {key:2, label:"Admiral", name:"Admiral Vex",    note:"Tracks your cash and pays exactly one dollar more than he has to."},
+  {key:0, label:"Rookie",  name:"Deckhand Dobo", note:"Bids on feelings. Dumps his whole purse on junk, folds on the good stuff."},
+  {key:1, label:"Pirate",  name:"Captain Marla", note:"Values items honestly and paces her budget across the auction."},
+  {key:2, label:"Admiral", name:"Admiral Vex",   note:"Counts your money, jump-bids to scare you off, never pays a dollar more than he must."},
 ];
 
 const state = {
   mode:"ai", ai:1, cash:20, lotCount:5,
-  names:["Player 1","Player 2"],
-  players:[], lots:[], lotIdx:0, bids:[null,null], priority:0, phase:"setup"
+  players:[], lots:[], lotIdx:0, cur:null, phase:"setup", timer:null
 };
 
 const $ = function(id){ return document.getElementById(id); };
 const money = function(n){ return "$" + n; };
+const pcol = function(pi){ return pi ? "var(--p2)" : "var(--p1)"; };
 
 /* ===================== setup ===================== */
+function bind(sel, fn){
+  Array.prototype.forEach.call(document.querySelectorAll(sel), function(b){ b.onclick = function(){ fn(b); }; });
+}
 function renderSetup(){
   $("modeSegs").innerHTML =
     '<button class="seg'+(state.mode==="ai"?" on":"")+'" data-mode="ai">1 player vs AI</button>' +
     '<button class="seg'+(state.mode==="hotseat"?" on":"")+'" data-mode="hotseat">2 players, one device</button>';
   $("aiSegs").innerHTML = AI_LEVELS.map(function(l){
-    return '<button class="seg'+(state.ai===l.key?" on":"")+'" data-ai="'+l.key+'">'+l.label+'</button>';
-  }).join("");
+    return '<button class="seg'+(state.ai===l.key?" on":"")+'" data-ai="'+l.key+'">'+l.label+'</button>'; }).join("");
   $("aiNote").textContent = AI_LEVELS[state.ai].name + " — " + AI_LEVELS[state.ai].note;
   $("cashSegs").innerHTML = [15,20,30,50].map(function(c){
-    return '<button class="seg'+(state.cash===c?" on":"")+'" data-cash="'+c+'">$'+c+'</button>';
-  }).join("");
+    return '<button class="seg'+(state.cash===c?" on":"")+'" data-cash="'+c+'">$'+c+'</button>'; }).join("");
   $("lotSegs").innerHTML = [3,5,7,10].map(function(n){
-    return '<button class="seg'+(state.lotCount===n?" on":"")+'" data-lot="'+n+'">'+n+' lots</button>';
-  }).join("");
-
+    return '<button class="seg'+(state.lotCount===n?" on":"")+'" data-lot="'+n+'">'+n+' lots</button>'; }).join("");
   $("aiField").classList.toggle("hidden", state.mode !== "ai");
   $("n2field").classList.toggle("hidden", state.mode !== "hotseat");
-
   bind("[data-mode]", function(b){ state.mode = b.dataset.mode; renderSetup(); showRecord(); });
   bind("[data-ai]",   function(b){ state.ai = parseInt(b.dataset.ai,10); renderSetup(); showRecord(); });
   bind("[data-cash]", function(b){ state.cash = parseInt(b.dataset.cash,10); renderSetup(); });
   bind("[data-lot]",  function(b){ state.lotCount = parseInt(b.dataset.lot,10); renderSetup(); });
-}
-function bind(sel, fn){
-  Array.prototype.forEach.call(document.querySelectorAll(sel), function(b){ b.onclick = function(){ fn(b); }; });
 }
 
 /* ===================== lots ===================== */
@@ -512,23 +518,23 @@ function drawLots(n){
     const pick = shuffle(ITEMS.slice()).slice(0,n);
     const top = Math.max.apply(null, pick.map(function(i){ return i.meta; }));
     const cats = {}; pick.forEach(function(i){ cats[i.cat]=1; });
-    if (top >= 68 && Object.keys(cats).length >= Math.min(3,n)) return pick;
+    if (top >= 68 && Object.keys(cats).length >= Math.min(3,n)) return shuffle(pick);
   }
   return shuffle(ITEMS.slice()).slice(0,n);
 }
 
-/* ===================== game flow ===================== */
-function startGame(keepSetup){
-  const n1 = ($("n1").value || "Player 1").trim().slice(0,16);
-  const n2 = state.mode === "ai" ? AI_LEVELS[state.ai].name : (($("n2").value || "Player 2").trim().slice(0,16));
-  state.names = [n1 || "Player 1", n2 || "Player 2"];
+/* ===================== game start ===================== */
+function startGame(){
+  const n1 = ($("n1").value || "Player 1").trim().slice(0,16) || "Player 1";
+  const n2 = state.mode === "ai" ? AI_LEVELS[state.ai].name
+                                 : (($("n2").value || "Player 2").trim().slice(0,16) || "Player 2");
   state.players = [
-    {name:state.names[0], cash:state.cash, items:[], ai:false},
-    {name:state.names[1], cash:state.cash, items:[], ai:state.mode === "ai"}
+    {name:n1, cash:state.cash, items:[], ai:false},
+    {name:n2, cash:state.cash, items:[], ai:state.mode === "ai"}
   ];
   state.lots = drawLots(state.lotCount).map(function(it){ return {item:it, winner:null, price:0}; });
   state.lotIdx = 0;
-  state.priority = Math.random() < .5 ? 0 : 1;
+  state.firstOpener = Math.random() < .5 ? 0 : 1;
   $("setup").classList.add("hidden");
   $("results").classList.add("hidden");
   $("play").classList.remove("hidden");
@@ -536,184 +542,34 @@ function startGame(keepSetup){
   window.scrollTo({top:0,behavior:"smooth"});
 }
 
-function renderPlayers(activeIdx){
+/* ===================== rendering ===================== */
+function renderTopBar(activeIdx){
   $("playerBar").innerHTML = state.players.map(function(p,i){
-    const own = p.items.length
-      ? p.items.map(function(it){ return it.emoji; }).join(" ") + ' <span>' + p.items.length + ' item' + (p.items.length===1?"":"s") + '</span>'
-      : "no items yet";
     return '<div class="pcard '+(i?"p2":"p1")+(activeIdx===i?" turn":"")+'">'
-      + '<div class="nm"><span class="dot"></span>'+p.name+(p.ai?" 🤖":"")+'</div>'
-      + '<div class="cash">'+money(p.cash)+'</div>'
-      + '<div class="own">'+own+'</div></div>';
+      + '<span class="nm"><span class="dot"></span>'+p.name+(p.ai?" 🤖":"")+'</span>'
+      + (activeIdx===i?'<span class="now">bidding</span>':'')
+      + '<span class="cash">'+money(p.cash)+'</span></div>';
   }).join("");
 }
 
-function renderBoard(){
-  $("board").innerHTML = state.lots.map(function(l,i){
-    const done = i < state.lotIdx, now = i === state.lotIdx;
-    let sold = '<div class="sold" style="color:var(--muted)">rating '+l.item.meta+'</div>';
-    if (done){
-      sold = l.winner === null
-        ? '<div class="sold" style="color:var(--muted)">unsold</div>'
-        : '<div class="sold" style="color:'+(l.winner?"var(--p2)":"var(--p1)")+'">'+state.players[l.winner].name+' · '+money(l.price)+'</div>';
+function renderStrip(){
+  $("strip").innerHTML = state.lots.map(function(l,i){
+    if (i > state.lotIdx){
+      return '<div class="sc future"><div class="no">Lot '+(i+1)+'</div><div class="nm">❓ Sealed crate</div>'
+        + '<div class="px" style="color:var(--muted)">unknown</div></div>';
     }
-    return '<div class="lotchip'+(now?" now":"")+(done?" done":"")+'">'
-      + '<div class="no">Lot '+(i+1)+'</div>'
-      + '<div class="nm">'+l.item.emoji+' '+l.item.name+'</div>'
-      + sold + '</div>';
+    const now = i === state.lotIdx;
+    let px = '<div class="px" style="color:var(--gold)">on the block</div>';
+    if (!now){
+      px = l.winner === null
+        ? '<div class="px" style="color:var(--muted)">unsold</div>'
+        : '<div class="px" style="color:'+pcol(l.winner)+'">'+state.players[l.winner].name+' · '+money(l.price)+'</div>';
+    }
+    return '<div class="sc'+(now?" now":"")+'"><div class="no">Lot '+(i+1)+'</div>'
+      + '<div class="nm">'+l.item.emoji+' '+l.item.name+'</div>'+px+'</div>';
   }).join("");
 }
 
-function openLot(){
-  const l = state.lots[state.lotIdx], it = l.item;
-  state.bids = [null,null];
-  $("lotKicker").textContent = "Lot " + (state.lotIdx+1) + " of " + state.lots.length;
-  $("lotEm").textContent = it.emoji;
-  const em = $("lotEm"); em.style.animation = "none"; void em.offsetWidth; em.style.animation = "";
-  $("lotNm").textContent = it.name;
-  $("lotRar").textContent = it.rarity;
-  $("lotRar").style.color = RARITY_COLOR[it.rarity];
-  $("lotCat").textContent = CAT_LABEL[it.cat];
-  $("lotPow").textContent = it.meta;
-  $("lotDesc").textContent = it.desc;
-  $("lotCard").style.setProperty("--glow", RARITY_GLOW[it.rarity]);
-  renderBoard();
-  askBid(0);
-}
-
-function pane(which){
-  $("bidPane").classList.toggle("hidden", which !== "bid");
-  $("handoffPane").classList.toggle("hidden", which !== "handoff");
-  $("revealPane").classList.toggle("hidden", which !== "reveal");
-}
-
-function askBid(pi){
-  const p = state.players[pi];
-  if (p.ai){ state.bids[pi] = aiBid(pi); return afterBid(pi); }
-
-  renderPlayers(pi);
-  state.phase = "bid:" + pi;
-  pane("bid");
-  const hidden = state.mode === "hotseat";
-  const inp = $("bidIn");
-  inp.type = hidden ? "password" : "text";
-  inp.value = "0";
-  $("bidWhose").textContent = "Sealed bid · lot " + (state.lotIdx+1);
-  $("bidWho").textContent = p.name;
-  $("bidHint").innerHTML = p.cash > 0
-    ? "You have <b style=\"color:var(--gold)\">" + money(p.cash) + "</b> left"
-      + (hidden ? ". Your bid stays hidden until both are in." : ". Highest bid wins and pays what they bid.")
-      + " Bid <b>$0</b> to pass."
-    : "You are flat broke. You can only pass this lot.";
-  $("bidErr").textContent = "";
-  $("quickRow").innerHTML =
-    '<button class="btn ghost sm" data-q="0">Pass ($0)</button>' +
-    '<button class="btn ghost sm" data-q="'+Math.floor(p.cash/4)+'">'+money(Math.floor(p.cash/4))+'</button>' +
-    '<button class="btn ghost sm" data-q="'+Math.floor(p.cash/2)+'">Half ('+money(Math.floor(p.cash/2))+')</button>' +
-    '<button class="btn ghost sm" data-q="'+p.cash+'">All in ('+money(p.cash)+')</button>';
-  bind("[data-q]", function(b){ inp.value = b.dataset.q; inp.focus(); });
-  $("bidBtn").textContent = "Lock in bid";
-  setTimeout(function(){ inp.focus(); inp.select(); }, 40);
-}
-
-function submitBid(){
-  if (state.phase.indexOf("bid:") !== 0) return;
-  const pi = parseInt(state.phase.split(":")[1],10);
-  const p = state.players[pi];
-  const raw = ($("bidIn").value || "").replace(/[^0-9]/g,"");
-  if (raw === ""){ $("bidErr").textContent = "Enter a number — $0 passes."; return; }
-  const v = parseInt(raw,10);
-  if (v > p.cash){ $("bidErr").textContent = "You only have " + money(p.cash) + "."; return; }
-  state.bids[pi] = v;
-  afterBid(pi);
-}
-
-function afterBid(pi){
-  if (pi === 0){
-    const other = state.players[1];
-    if (other.ai){ state.bids[1] = aiBid(1); return resolveLot(); }
-    state.phase = "handoff";
-    pane("handoff");
-    renderPlayers(null);
-    $("handoffTitle").textContent = "Pass to " + other.name;
-    $("handoffText").textContent = state.players[0].name + " has sealed their bid. Hand the device over — no peeking at lot " + (state.lotIdx+1) + ".";
-    return;
-  }
-  resolveLot();
-}
-
-/* ===================== AI ===================== */
-function aiBid(pi){
-  const me = state.players[pi], opp = state.players[1-pi];
-  const lvl = state.ai;
-  const upcoming = state.lots.slice(state.lotIdx);
-  const it = upcoming[0].item;
-  if (me.cash <= 0) return 0;
-
-  const avg = upcoming.reduce(function(s,l){ return s + l.item.meta; },0) / upcoming.length;
-  let v = (me.cash / upcoming.length) * (it.meta / Math.max(1, avg));
-
-  const dup = me.items.some(function(x){ return x.cat === it.cat; });
-  v *= dup ? 0.45 : 1.15;
-  if (me.items.length === 0 && upcoming.length <= 2) v *= 1.6;   // don't finish with nothing
-  if (upcoming.length === 1) v = Math.max(v, it.meta > 25 ? me.cash : 0);
-  if (it.meta >= 85) v *= 1.25;
-
-  v *= [0.75, 1.0, 1.12][lvl];
-  const noise = [0.55, 0.22, 0.08][lvl];
-  v *= 1 + (Math.random()*2 - 1) * noise;
-  if (lvl === 2) v = Math.min(v, opp.cash + 1);                  // never pay more than needed
-  if (lvl > 0 && it.meta < 20) v = Math.min(v, 1);               // junk is junk
-
-  return Math.max(0, Math.min(me.cash, Math.round(v)));
-}
-
-/* ===================== resolve ===================== */
-function resolveLot(){
-  const l = state.lots[state.lotIdx];
-  const b = state.bids;
-  let winner = null;
-  if (b[0] > 0 || b[1] > 0){
-    if (b[0] > b[1]) winner = 0;
-    else if (b[1] > b[0]) winner = 1;
-    else { winner = state.priority; state.priority = 1 - state.priority; }
-  }
-  if (winner !== null){
-    l.winner = winner; l.price = b[winner];
-    state.players[winner].cash -= b[winner];
-    state.players[winner].items.push(l.item);
-  }
-  state.phase = "reveal";
-  pane("reveal");
-  renderPlayers(winner);
-  renderBoard();
-
-  $("rw1").textContent = state.players[0].name;
-  $("rw2").textContent = state.players[1].name;
-  $("ra1").textContent = money(b[0]); $("ra1").style.color = b[0] ? "var(--p1)" : "var(--muted)";
-  $("ra2").textContent = money(b[1]); $("ra2").style.color = b[1] ? "var(--p2)" : "var(--muted)";
-  $("rb1").className = "bidbox" + (winner === 0 ? " win" : "");
-  $("rb2").className = "bidbox" + (winner === 1 ? " win" : "");
-
-  if (winner === null){
-    $("outcome").innerHTML = "Both captains passed. <b>" + l.item.name + "</b> goes back in the crate.";
-  } else {
-    const tie = b[0] === b[1];
-    $("outcome").innerHTML = "<b>" + state.players[winner].name + "</b> takes " + l.item.emoji + " <b>" + l.item.name
-      + "</b> for <b>" + money(l.price) + "</b>"
-      + (tie ? " — tied bids, priority token decided it." : "")
-      + '<br><span style="font-size:13px;color:var(--muted)">' + money(state.players[winner].cash) + " left in the war chest.</span>";
-  }
-  $("nextBtn").textContent = (state.lotIdx === state.lots.length - 1) ? "See the loadouts" : "Next lot";
-}
-
-function nextLot(){
-  state.lotIdx++;
-  if (state.lotIdx >= state.lots.length) return finish();
-  openLot();
-}
-
-/* ===================== scoring ===================== */
 function scoreInv(p){
   const seen = {}, rows = [];
   p.items.slice().sort(function(a,b){ return b.meta - a.meta; }).forEach(function(it){
@@ -724,12 +580,278 @@ function scoreInv(p){
   const base = rows.reduce(function(s,r){ return s + r.pts; },0);
   const cats = Object.keys(seen).length;
   const cover = Math.max(0, cats - 1) * COVER_BONUS;
-  const best = rows.length ? rows[0].it.meta : 0;
-  return {rows:rows, base:base, cats:cats, cover:cover, best:best, total:base + cover};
+  return {rows:rows, base:base, cats:cats, cover:cover, best:rows.length?rows[0].it.meta:0, total:base+cover};
 }
 
+function invColumn(p, i, sc, lead, final){
+  const rows = sc.rows.length ? sc.rows.map(function(r){
+      return '<div class="fitem'+(r.bench?" benched":"")+'"><span class="e">'+r.it.emoji+'</span>'
+        + '<span class="t">'+r.it.name+(r.bench?'<span class="bench">BENCH</span>':'')
+        + '<br><small style="color:'+RARITY_COLOR[r.it.rarity]+'">'+r.it.rarity+' · '+CAT_LABEL[r.it.cat]+'</small></span>'
+        + '<span class="pp">'+r.pts+'</span></div>';
+    }).join("")
+    : '<div class="fnone">Nothing won yet.</div>';
+  const spent = state.cash - p.cash;
+  return '<div class="fcol'+(lead?" lead":"")+'">'
+    + '<div class="fhd"><span class="dot" style="background:'+pcol(i)+'"></span>'
+    + '<span class="n">'+p.name+(p.ai?" 🤖":"")+'</span>'
+    + '<span class="sc2">'+sc.total+'<small>score</small></span></div>'
+    + rows
+    + '<div class="fmoney"><span>Cash <b>'+money(p.cash)+'</b> <span style="opacity:.7">· spent '+money(spent)+'</span></span>'
+    + '<span class="cats">'+sc.cats+' categor'+(sc.cats===1?"y":"ies")+(sc.cover?' <span style="color:var(--good)">+'+sc.cover+'</span>':'')+'</span></div>'
+    + (final ? '<div class="calc">Items <b>'+sc.base+'</b> + coverage <b class="win">'+sc.cover+'</b> = <b>'+sc.total+'</b>'
+        + (spent ? '<br><b>'+(sc.total/spent).toFixed(1)+'</b> points per dollar spent' : '<br>Spent nothing at all.') + '</div>' : '')
+    + '</div>';
+}
+
+function renderFloor(){
+  const s = state.players.map(scoreInv);
+  const lead = s[0].total === s[1].total ? -1 : (s[0].total > s[1].total ? 0 : 1);
+  $("floorCols").innerHTML = state.players.map(function(p,i){ return invColumn(p, i, s[i], lead === i, false); }).join("");
+  const left = state.lots.length - state.lotIdx - 1;
+  $("floorNote").textContent = lead < 0
+    ? "Dead level" + (left ? " with " + left + " lot" + (left===1?"":"s") + " still in the crate." : ".")
+    : state.players[lead].name + " leads by " + Math.abs(s[0].total - s[1].total)
+      + (left ? " · " + left + " lot" + (left===1?"":"s") + " still in the crate" : " · final lot on the block");
+}
+
+function renderLotCard(){
+  const it = state.lots[state.lotIdx].item;
+  $("lotKicker").textContent = "Lot " + (state.lotIdx+1) + " of " + state.lots.length;
+  $("lotEm").textContent = it.emoji;
+  const em = $("lotEm"); em.style.animation = "none"; void em.offsetWidth; em.style.animation = "";
+  $("lotNm").textContent = it.name;
+  $("lotRar").textContent = it.rarity;
+  $("lotRar").style.color = RARITY_COLOR[it.rarity];
+  $("lotCat").textContent = CAT_LABEL[it.cat];
+  $("lotPow").textContent = it.meta;
+  $("lotDesc").textContent = it.desc;
+  $("lotCard").style.setProperty("--glow", RARITY_GLOW[it.rarity]);
+}
+
+function renderFlagFor(pi){
+  const it = state.lots[state.lotIdx].item, p = state.players[pi];
+  const owned = p.items.filter(function(x){ return x.cat === it.cat; }).length;
+  if (owned){
+    $("lotFlag").innerHTML = '<div class="ownwarn">You already own a ' + CAT_LABEL[it.cat]
+      + '. This one rides the bench at 30% — worth about <b>' + Math.round(it.meta*BENCH_MULT) + '</b> to you.</div>';
+  } else if (p.items.length){
+    $("lotFlag").innerHTML = '<div class="newcat">New category for you: full <b>' + it.meta
+      + '</b> points plus the <b>+' + COVER_BONUS + '</b> coverage bonus.</div>';
+  } else {
+    $("lotFlag").innerHTML = '<div class="newcat">Your rack is empty — this one scores its full <b>'
+      + it.meta + '</b> points.</div>';
+  }
+}
+
+function renderTicker(){
+  $("ticker").innerHTML = state.cur.log.map(function(e){
+    const cls = e.pass ? "tick out" : ("tick " + (e.pi ? "p2" : "p1"));
+    const txt = e.pass ? state.players[e.pi].name + " " + (e.why || "passes")
+                       : state.players[e.pi].name + " " + money(e.amt);
+    return '<span class="'+cls+'">'+txt+'</span>';
+  }).join("");
+}
+
+function renderStanding(){
+  const c = state.cur;
+  if (c.bid === 0){
+    $("standLbl").textContent = "No bids yet";
+    $("standAmt").textContent = "$0";
+    $("standBy").textContent = "Opening bid is $1";
+  } else {
+    $("standLbl").textContent = "Standing bid";
+    $("standAmt").textContent = money(c.bid);
+    $("standAmt").style.color = pcol(c.leader);
+    $("standBy").innerHTML = "held by <b style=\"color:" + pcol(c.leader) + "\">" + state.players[c.leader].name + "</b>";
+  }
+  if (c.bid === 0) $("standAmt").style.color = "var(--gold)";
+}
+
+/* ===================== lot flow ===================== */
+function openLot(){
+  const opener = (state.firstOpener + state.lotIdx) % 2;
+  state.cur = {bid:0, leader:null, turn:opener, log:[], openPass:[false,false], aiVal:null};
+  $("revealPane").classList.add("hidden");
+  $("bidPane").classList.remove("hidden");
+  renderLotCard();
+  renderStrip();
+  renderFloor();
+  beginTurn();
+}
+
+function beginTurn(){
+  const c = state.cur, pi = c.turn, p = state.players[pi];
+  renderTopBar(pi);
+  renderStanding();
+  renderTicker();
+  renderFlagFor(pi);
+
+  const minRaise = c.bid + 1;
+  if (p.cash < minRaise){
+    c.log.push({pi:pi, pass:true, why:"is tapped out"});
+    renderTicker();
+    $("bidBody").innerHTML = '<div class="turnline">' + p.name + " can't cover " + money(minRaise) + '</div>'
+      + '<div class="turnsub">Out of money, out of the lot.</div>';
+    state.timer = setTimeout(function(){ resolvePass(pi, true); }, 900);
+    return;
+  }
+  if (p.ai){
+    $("bidBody").innerHTML = '<div class="thinking"><span class="dots"><span>●</span><span>●</span><span>●</span></span>'
+      + p.name + ' is sizing up the lot…</div>';
+    state.timer = setTimeout(aiAct, 600 + Math.random()*700);
+    return;
+  }
+  renderHumanTurn(pi);
+}
+
+function renderHumanTurn(pi){
+  const c = state.cur, p = state.players[pi];
+  const minRaise = c.bid + 1;
+  const quicks = [minRaise, minRaise+1, minRaise+4, p.cash].filter(function(v,i,a){
+    return v <= p.cash && v >= minRaise && a.indexOf(v) === i;
+  });
+  $("bidBody").innerHTML =
+      '<div class="turnline">' + p.name + ', your move</div>'
+    + '<div class="turnsub">' + (c.bid === 0
+        ? 'Open the bidding at ' + money(1) + ' or more, or pass and hope it goes unsold.'
+        : '<b style="color:' + pcol(c.leader) + '">' + state.players[c.leader].name + '</b> holds it at '
+          + money(c.bid) + '. Raise to at least ' + money(minRaise) + ' or fold.')
+    + ' You have <b style="color:var(--gold)">' + money(p.cash) + '</b>.</div>'
+    + '<div class="raiserow"><span class="dollar">$</span>'
+    + '<input class="raisein" id="raiseIn" inputmode="numeric" autocomplete="off" value="' + minRaise + '"></div>'
+    + '<div class="quick">' + quicks.map(function(v){
+        const lbl = v === p.cash && v > minRaise ? "All in (" + money(v) + ")" : money(v);
+        return '<button class="btn ghost sm" data-q="' + v + '">' + lbl + '</button>';
+      }).join("") + '</div>'
+    + '<div class="err" id="bidErr"></div>'
+    + '<div class="actrow">'
+    + '<button class="btn" id="raiseBtn">Raise</button>'
+    + '<button class="btn danger" id="passBtn">' + (c.bid === 0 ? "Pass" : "Fold") + '</button>'
+    + '</div>';
+
+  const inp = $("raiseIn");
+  bind("[data-q]", function(b){ inp.value = b.dataset.q; inp.focus(); });
+  inp.addEventListener("input", function(){
+    const v = inp.value.replace(/[^0-9]/g,"");
+    if (v !== inp.value) inp.value = v;
+    $("bidErr").textContent = "";
+  });
+  inp.addEventListener("keydown", function(e){ if (e.key === "Enter"){ e.preventDefault(); tryRaise(pi); } });
+  $("raiseBtn").onclick = function(){ tryRaise(pi); };
+  $("passBtn").onclick = function(){ resolvePass(pi); };
+  setTimeout(function(){ inp.focus(); inp.select(); }, 40);
+}
+
+function tryRaise(pi){
+  const c = state.cur, p = state.players[pi];
+  const raw = ($("raiseIn").value || "").replace(/[^0-9]/g,"");
+  if (raw === ""){ $("bidErr").textContent = "Type an amount, or fold."; return; }
+  const v = parseInt(raw,10);
+  if (v <= c.bid){ $("bidErr").textContent = "You must beat " + money(c.bid) + "."; return; }
+  if (v < 1){ $("bidErr").textContent = "Minimum bid is $1."; return; }
+  if (v > p.cash){ $("bidErr").textContent = "You only have " + money(p.cash) + "."; return; }
+  doRaise(pi, v);
+}
+
+function doRaise(pi, amt){
+  const c = state.cur;
+  c.bid = amt; c.leader = pi;
+  c.log.push({pi:pi, amt:amt});
+  c.turn = 1 - pi;
+  beginTurn();
+}
+
+function resolvePass(pi, silent){
+  const c = state.cur;
+  if (!silent) c.log.push({pi:pi, pass:true, why: c.bid === 0 ? "passes" : "folds"});
+  if (c.leader === null){
+    c.openPass[pi] = true;
+    if (c.openPass[0] && c.openPass[1]) return endLot(null);
+    c.turn = 1 - pi;
+    return beginTurn();
+  }
+  endLot(c.leader);
+}
+
+function endLot(winner){
+  const l = state.lots[state.lotIdx];
+  if (winner !== null){
+    l.winner = winner; l.price = state.cur.bid;
+    state.players[winner].cash -= l.price;
+    state.players[winner].items.push(l.item);
+  }
+  $("bidPane").classList.add("hidden");
+  $("revealPane").classList.remove("hidden");
+  renderTopBar(winner);
+  renderStrip();
+  renderFloor();
+
+  const last = state.lotIdx === state.lots.length - 1;
+  if (winner === null){
+    $("revKick").textContent = "Unsold";
+    $("revPrice").textContent = "—";
+    $("outcome").innerHTML = "Nobody wanted " + l.item.emoji + " <b>" + l.item.name + "</b>. Back in the crate it goes.";
+  } else {
+    const p = state.players[winner];
+    const sc = scoreInv(p);
+    const benched = p.items.filter(function(x){ return x.cat === l.item.cat; }).length > 1;
+    $("revKick").textContent = "Sold to " + p.name;
+    $("revPrice").textContent = money(l.price);
+    $("revPrice").style.color = pcol(winner);
+    $("outcome").innerHTML = l.item.emoji + " <b>" + l.item.name + "</b> goes to <b style=\"color:" + pcol(winner) + "\">"
+      + p.name + "</b>"
+      + (benched ? " — and it lands on their bench at 30%." : ".")
+      + '<br><span style="font-size:13px;color:var(--muted)">' + money(p.cash) + " left · inventory score " + sc.total + "</span>";
+  }
+  $("nextBtn").textContent = last ? "See the final loadouts" : "Bring out the next lot";
+}
+
+function nextLot(){
+  state.lotIdx++;
+  if (state.lotIdx >= state.lots.length) return finish();
+  openLot();
+}
+
+/* ===================== AI ===================== */
+function aiValuation(pi){
+  const me = state.players[pi], opp = state.players[1-pi];
+  const it = state.lots[state.lotIdx].item;
+  const lotsLeft = state.lots.length - state.lotIdx;   // including this one
+  const lvl = state.ai;
+
+  // what this item is actually worth to THIS inventory, in points
+  const dup = me.items.some(function(x){ return x.cat === it.cat; });
+  const marginal = dup ? BENCH_MULT * it.meta : it.meta + COVER_BONUS;
+  const perLot = POOL_AVG + COVER_BONUS * 0.6;         // what an average future lot is worth
+
+  let v = (me.cash / lotsLeft) * Math.pow(marginal / perLot, AI_TUNE.exp[lvl]);
+  if (!me.items.length && lotsLeft <= 2) v *= 1.7;     // don't finish empty-handed
+  if (lotsLeft === 1) v = marginal > 12 ? me.cash : 0; // last lot, money is worthless
+  if (it.meta >= 85) v *= 1.25;                        // the auction-defining items
+  v *= AI_TUNE.mult[lvl];
+  v *= 1 + (Math.random()*2 - 1) * AI_TUNE.noise[lvl];
+  if (lvl > 0 && it.meta < 20) v = Math.min(v, 1);     // junk is junk
+  if (lvl === 2) v = Math.min(v, opp.cash + 1);        // can't be outbid past their purse
+  return Math.max(0, Math.min(me.cash, Math.round(v)));
+}
+
+function aiAct(){
+  const pi = state.cur.turn, me = state.players[pi], c = state.cur;
+  if (c.aiVal === null) c.aiVal = aiValuation(pi);
+  const need = c.bid + 1;
+  if (need > me.cash || need > c.aiVal) return resolvePass(pi);
+
+  let amt = need;
+  const room = c.aiVal - need;
+  if (state.ai === 2 && room >= 3 && Math.random() < 0.4) amt = need + 1 + Math.floor(Math.random()*2); // jump bid
+  if (state.ai === 0 && Math.random() < 0.3) amt = c.aiVal;                                             // shows its hand
+  doRaise(pi, Math.min(me.cash, amt));
+}
+
+/* ===================== results ===================== */
 function finish(){
-  const s = [scoreInv(state.players[0]), scoreInv(state.players[1])];
+  const s = state.players.map(scoreInv);
   let win = -1, reason = "";
   if (s[0].total !== s[1].total){ win = s[0].total > s[1].total ? 0 : 1; reason = "on inventory score"; }
   else if (s[0].best !== s[1].best){ win = s[0].best > s[1].best ? 0 : 1; reason = "on the better single item"; }
@@ -742,35 +864,18 @@ function finish(){
   if (win < 0){
     $("crown").textContent = "🤝";
     $("winTitle").textContent = "Dead heat";
-    $("winText").textContent = "Identical scores, identical top item, identical cash. Somehow.";
+    $("winText").textContent = "Same score, same best item, same cash. Split the treasure.";
   } else {
     const w = state.players[win], l = state.players[1-win];
     const gap = Math.abs(s[0].total - s[1].total);
     $("crown").textContent = "🏆";
     $("winTitle").textContent = w.name + " wins the auction";
     $("winText").innerHTML = s[win].total + " to " + s[1-win].total + " " + reason
-      + (gap ? " — a " + gap + "-point gap." : ".")
-      + "<br><span style=\"color:var(--muted)\">" + verdict(s[win], s[1-win], w, l) + "</span>";
+      + (gap ? " — " + (/^(8|11|18)/.test(String(gap)) ? "an " : "a ") + gap + "-point gap." : ".")
+      + '<br><span style="color:var(--muted)">' + verdict(s[win], s[1-win], w, l) + "</span>";
   }
-
-  $("invs").innerHTML = state.players.map(function(p,i){
-    const sc = s[i], spent = state.cash - p.cash;
-    const rows = sc.rows.length
-      ? sc.rows.map(function(r){
-          return '<div class="irow"><span class="e">'+r.it.emoji+'</span>'
-            + '<span class="t"><span class="nn">'+r.it.name+(r.bench?'<span class="bench">BENCH ×0.3</span>':'')+'</span>'
-            + '<span class="mm" style="color:'+RARITY_COLOR[r.it.rarity]+'">'+r.it.rarity+' · '+CAT_LABEL[r.it.cat]+'</span></span>'
-            + '<span class="pts">'+r.pts+'</span></div>';
-        }).join("")
-      : '<div class="empty">Won nothing. Kept every dollar. Bold strategy.</div>';
-    return '<div class="card pad inv">'
-      + '<div class="hd"><span class="n"><span class="dot" style="background:'+(i?"var(--p2)":"var(--p1)")+'"></span>'+p.name+(p.ai?" 🤖":"")+'</span>'
-      + '<span class="tot">'+sc.total+'</span></div>'
-      + rows
-      + '<div class="calc">Items <b>'+sc.base+'</b> + coverage <b class="win">'+sc.cover+'</b> ('+sc.cats+' categor'+(sc.cats===1?"y":"ies")+') = <b>'+sc.total+'</b>'
-      + '<br>Spent <b>'+money(spent)+'</b>, kept <b>'+money(p.cash)+'</b>'
-      + (spent ? ' — <b>'+(sc.total/spent).toFixed(1)+'</b> points per dollar' : '')
-      + '</div></div>';
+  $("finalCols").innerHTML = state.players.map(function(p,i){
+    return invColumn(p, i, s[i], win === i, true);
   }).join("");
 
   if (state.mode === "ai") saveRecord(win === 0 ? "w" : (win < 0 ? "d" : "l"));
@@ -779,7 +884,7 @@ function finish(){
 
 function verdict(sw, sl, w, l){
   const benched = sl.rows.filter(function(r){ return r.bench; }).length;
-  if (!sl.rows.length) return l.name + " never landed a single lot. Passing everything keeps your cash and loses the auction.";
+  if (!sl.rows.length) return l.name + " never won a single lot. Folding every time keeps your cash and loses the auction.";
   if (benched) return l.name + " paid full price for " + benched + " bench item" + (benched > 1 ? "s" : "")
     + " — a second item in a category you already own only counts 30%.";
   if (sw.cats > sl.cats) return "Coverage did it: " + sw.cats + " categories to " + sl.cats
@@ -790,7 +895,7 @@ function verdict(sw, sl, w, l){
 }
 
 /* ===================== record ===================== */
-function recKey(){ return "bfla:" + state.ai; }
+function recKey(){ return "bfla2:" + state.ai; }
 function saveRecord(r){
   try{
     const k = recKey(), cur = JSON.parse(localStorage.getItem(k) || '{"w":0,"l":0,"d":0}');
@@ -815,14 +920,6 @@ $("newBtn").onclick = function(){
   $("setup").classList.remove("hidden");
   renderSetup();
 };
-$("bidBtn").onclick = submitBid;
-$("bidIn").addEventListener("keydown", function(e){ if (e.key === "Enter"){ e.preventDefault(); submitBid(); } });
-$("bidIn").addEventListener("input", function(){
-  const v = $("bidIn").value.replace(/[^0-9]/g,"");
-  if (v !== $("bidIn").value) $("bidIn").value = v;
-  $("bidErr").textContent = "";
-});
-$("handoffBtn").onclick = function(){ askBid(1); };
 $("nextBtn").onclick = nextLot;
 
 renderSetup();
