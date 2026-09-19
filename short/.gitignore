@@ -1,0 +1,6 @@
+# Generated media and working files — regenerate with make_short.sh
+in/
+out/
+work/
+assets/
+__pycache__/

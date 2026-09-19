@@ -1,0 +1,8 @@
+{
+  "_comment": "Hook and caption copy. Times are seconds on the final timeline.",
+  "hook": {"start": 0.15, "end": 2.6, "lines": ["WAIT FOR", "THE LAST ONE"], "accent_idx": 1, "y": 720},
+  "caption_y": 1430,
+  "accent_words": ["INSANE", "LAST"],
+  "captions": [],
+  "tags": []
+}
