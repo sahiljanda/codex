@@ -131,7 +131,9 @@ class Ass:
             per = span / len(chunks)
             for j, ch in enumerate(chunks):
                 cs = start + j * per
-                ce = cs + per + 0.04  # slight overlap kills any 1-frame gap
+                # Exactly adjacent, never overlapping: an overlap makes libass
+                # draw both chunks on the shared frame, which reads as a glitch.
+                ce = cs + per
                 txt = " ".join(ch).upper()
                 style = "CapAcc" if acc and any(
                     w.upper().strip(".,!?") in acc for w in ch

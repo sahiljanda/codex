@@ -1,5 +1,5 @@
 {
-  "_comment": "Four hand-picked moments. Order: c2 toy obsession (hook), c3 zoomies, c4 tug-of-war, c5 charge at camera (payoff). Source clips are timestamped 21:37-21:41, hence the 9:41 PM framing.",
+  "_comment": "Concept: setup-reversal. The hook promises a sweet dog and withholds the 24th hour, then the footage is the answer. Captions form one escalating sentence - sheep, then rug, then me, then you - instead of narrating each clip. The last clip charges the lens, so 'THEN YOU' breaks the fourth wall and loops back into the hook.",
 
   "segments": [
     {"start": 2.40, "bars": 4, "_note": "c2 portrait: big expressive face, paws at the sheep"},
@@ -8,26 +8,24 @@
     {"start": 11.90, "bars": 1, "_note": "c5: 11.9-13.6 is the run at camera, ending on a full-frame face. Past 13.8 it degrades to motion blur, so this stays at one bar."}
   ],
 
-  "hook": {"start": 0.15, "end": 2.95, "lines": ["IT'S 9:41 PM", "AND HE JUST", "WOKE UP"], "accent_idx": 0, "y": 1150},
+  "hook": {"start": 0.15, "end": 2.90, "lines": ["HE'S SWEET", "23 HOURS", "A DAY"], "accent_idx": 1, "y": 1150},
 
   "caption_y": 1400,
-  "accent_words": ["ZOOMIES", "SURVIVORS", "NEXT"],
+  "accent_words": ["24", "YOU"],
 
   "captions": [
-    {"start": 3.15, "end": 3.95, "text": "step one"},
-    {"start": 3.95, "end": 6.70, "text": "he attacks the sheep"},
+    {"start": 3.10, "end": 4.70, "text": "meet hour 24"},
+    {"start": 4.90, "end": 6.70, "text": "the sheep goes first"},
 
-    {"start": 7.05, "end": 7.85, "text": "step two"},
-    {"start": 7.85, "end": 11.85, "text": "maximum zoomies"},
+    {"start": 7.10, "end": 9.30, "text": "then the rug gets it"},
+    {"start": 9.60, "end": 11.85, "text": "this is not the same dog"},
 
-    {"start": 12.10, "end": 12.75, "text": "step three"},
-    {"start": 12.75, "end": 13.68, "text": "you're next"},
+    {"start": 12.15, "end": 13.68, "text": "then he comes for me"},
 
-    {"start": 13.92, "end": 14.50, "text": "step four"},
-    {"start": 14.50, "end": 15.45, "text": "no survivors"}
+    {"start": 13.95, "end": 15.45, "text": "then you"}
   ],
 
   "tags": [
-    {"start": 14.40, "end": 15.46, "text": "every single night"}
+    {"start": 14.50, "end": 15.46, "text": "9:41 pm. every night."}
   ]
 }
