@@ -8,6 +8,44 @@ Two kinds of events:
 
 PLAY_W, PLAY_H = 1080, 1920
 
+FONT_FILE = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
+
+# Widest a line may draw. Keeps text clear of the frame edge, and leaves room
+# for the outline plus the overshoot the pop animation scales through.
+HOOK_MAX_W = 940
+CAP_MAX_W = 920
+
+_font_cache = {}
+
+
+def _measure(text, size):
+    """Rendered width of `text` at `size`, in pixels."""
+    try:
+        from PIL import ImageFont
+    except ImportError:
+        # No PIL: fall back to a conservative average-advance estimate.
+        return len(text) * size * 0.62
+
+    font = _font_cache.get(size)
+    if font is None:
+        try:
+            font = ImageFont.truetype(FONT_FILE, size)
+        except OSError:
+            return len(text) * size * 0.62
+        _font_cache[size] = font
+    return font.getbbox(text)[2] - font.getbbox(text)[0]
+
+
+def fit_size(lines, base, scale_x, max_w, overshoot=1.0):
+    """Largest size <= base at which every line fits inside `max_w`."""
+    widest = max((l for l in lines), key=lambda t: _measure(t, base), default="")
+    if not widest:
+        return base
+    for size in range(base, 23, -2):
+        if _measure(widest, size) * (scale_x / 100.0) * overshoot <= max_w:
+            return size
+    return 24
+
 HEADER = f"""[Script Info]
 ScriptType: v4.00+
 PlayResX: {PLAY_W}
@@ -57,7 +95,11 @@ class Ass:
         `lines` is a list of text rows; `accent_idx` marks which row is coloured.
         """
         n = len(lines)
-        line_h = 150
+        upper = [l.upper() for l in lines]
+        # One size for the whole block: sizing each line on its own would leave
+        # the short line looking bigger than the long one.
+        size = fit_size(upper, 118, 104, HOOK_MAX_W, overshoot=1.04)
+        line_h = int(size * 1.28)
         top = y - (n - 1) * line_h / 2
 
         for i, raw in enumerate(lines):
@@ -68,12 +110,12 @@ class Ass:
             # Slam in from small + rotated, overshoot past 100%, settle, then a
             # slow drift so the card never looks frozen.
             tags = (
-                r"{\an5\pos(%d,%d)\fad(0,140)"
+                r"{\an5\pos(%d,%d)\fs%d\fad(0,140)"
                 r"\fscx40\fscy40\frz%s"
                 r"\t(0,110,\fscx116\fscy116\frz0)"
                 r"\t(110,210,\fscx100\fscy100)"
                 r"\t(210,%d,\fscx104\fscy104)}"
-            ) % (PLAY_W // 2, int(cy), "-7" if i % 2 == 0 else "6",
+            ) % (PLAY_W // 2, int(cy), size, "-7" if i % 2 == 0 else "6",
                  max(400, int((end - st) * 1000)))
             self._add(2, st, end, style, tags + esc(raw.upper()))
 
@@ -94,12 +136,13 @@ class Ass:
                 style = "CapAcc" if acc and any(
                     w.upper().strip(".,!?") in acc for w in ch
                 ) else "Cap"
+                size = fit_size([txt], 92, 102, CAP_MAX_W, overshoot=1.12)
                 tags = (
-                    r"{\an5\pos(%d,%d)"
+                    r"{\an5\pos(%d,%d)\fs%d"
                     r"\fscx58\fscy58"
                     r"\t(0,80,\fscx112\fscy112)"
                     r"\t(80,150,\fscx100\fscy100)}"
-                ) % (PLAY_W // 2, y)
+                ) % (PLAY_W // 2, y, size)
                 self._add(3, cs, ce, style, tags + esc(txt))
 
     def tag(self, start, end, text, y=1760):

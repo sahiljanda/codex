@@ -46,9 +46,29 @@ def probe(ffmpeg, path):
     return dur, w or W, h or H
 
 
-def plan(durations, spb, target=30.0, bars_min=2, bars_max=5):
-    """Give each clip a bar-aligned slice, biased toward filling `target`."""
+def plan(durations, spb, target=30.0, bars_min=2, bars_max=5, override=None):
+    """Give each clip a bar-aligned slice, biased toward filling `target`.
+
+    `override` lets the script file pick the exact in-point and bar count per
+    clip, which is how the hand-picked moments get used; anything it leaves out
+    falls back to the automatic choice below.
+    """
     bar = spb * 4
+
+    if override:
+        segs = []
+        for i, d in enumerate(durations):
+            o = override[i] if i < len(override) else {}
+            bars = o.get("bars")
+            start = float(o.get("start", 0.0))
+            if bars is None:
+                bars = max(1, int((d - start - 0.05) // bar))
+            length = bars * bar
+            if start + length > d - 0.02:      # never run past the last frame
+                length = max(bar / 2, (d - start - 0.05) // bar * bar)
+            segs.append((round(start, 3), round(length, 3)))
+        return segs
+
     n = len(durations)
     want_bars = max(bars_min, round(target / bar / n))
 
@@ -175,7 +195,7 @@ def main():
         durations.append(d)
         print(f"  {os.path.basename(c)}: {d:.2f}s {w}x{h}", file=sys.stderr)
 
-    segs = plan(durations, spb, target=a.target)
+    segs = plan(durations, spb, target=a.target, override=script.get("segments"))
     lengths = [ln for _, ln in segs]
     total = sum(lengths)
     cuts = []

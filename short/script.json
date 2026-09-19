@@ -1,8 +1,33 @@
 {
-  "_comment": "Hook and caption copy. Times are seconds on the final timeline.",
-  "hook": {"start": 0.15, "end": 2.6, "lines": ["WAIT FOR", "THE LAST ONE"], "accent_idx": 1, "y": 720},
-  "caption_y": 1430,
-  "accent_words": ["INSANE", "LAST"],
-  "captions": [],
-  "tags": []
+  "_comment": "Four hand-picked moments. Order: c2 toy obsession (hook), c3 zoomies, c4 tug-of-war, c5 charge at camera (payoff). Source clips are timestamped 21:37-21:41, hence the 9:41 PM framing.",
+
+  "segments": [
+    {"start": 2.40, "bars": 4, "_note": "c2 portrait: big expressive face, paws at the sheep"},
+    {"start": 1.90, "bars": 3, "_note": "c3: zoomies on the rug with the yellow ball"},
+    {"start": 0.05, "bars": 1, "_note": "c4: tug-of-war, only 1.9s of source"},
+    {"start": 11.90, "bars": 1, "_note": "c5: 11.9-13.6 is the run at camera, ending on a full-frame face. Past 13.8 it degrades to motion blur, so this stays at one bar."}
+  ],
+
+  "hook": {"start": 0.15, "end": 2.95, "lines": ["IT'S 9:41 PM", "AND HE JUST", "WOKE UP"], "accent_idx": 0, "y": 1150},
+
+  "caption_y": 1400,
+  "accent_words": ["ZOOMIES", "SURVIVORS", "NEXT"],
+
+  "captions": [
+    {"start": 3.15, "end": 3.95, "text": "step one"},
+    {"start": 3.95, "end": 6.70, "text": "he attacks the sheep"},
+
+    {"start": 7.05, "end": 7.85, "text": "step two"},
+    {"start": 7.85, "end": 11.85, "text": "maximum zoomies"},
+
+    {"start": 12.10, "end": 12.75, "text": "step three"},
+    {"start": 12.75, "end": 13.68, "text": "you're next"},
+
+    {"start": 13.92, "end": 14.50, "text": "step four"},
+    {"start": 14.50, "end": 15.45, "text": "no survivors"}
+  ],
+
+  "tags": [
+    {"start": 14.40, "end": 15.46, "text": "every single night"}
+  ]
 }
