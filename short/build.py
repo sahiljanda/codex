@@ -218,6 +218,7 @@ def main():
     ap.add_argument("--out", required=True)
     ap.add_argument("--ffmpeg", required=True)
     ap.add_argument("--target", type=float, default=20.0)
+    ap.add_argument("--crf", type=int, default=19)
     ap.add_argument("--plan-only", action="store_true")
     a = ap.parse_args()
 
@@ -281,7 +282,7 @@ def main():
         "-af", f"afade=t=in:st=0:d=0.25,"
                f"afade=t=out:st={max(0, total - 0.8):.3f}:d=0.8,"
                f"loudnorm=I=-14:TP=-1.5:LRA=11",
-        "-c:v", "libx264", "-preset", "slow", "-crf", "19",
+        "-c:v", "libx264", "-preset", "slow", "-crf", str(a.crf),
         "-profile:v", "high", "-level", "4.1",
         "-pix_fmt", "yuv420p", "-r", str(FPS),
         "-c:a", "aac", "-b:a", "192k", "-ar", "48000",
