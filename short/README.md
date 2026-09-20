@@ -13,8 +13,27 @@ animated captions, glitter and glitch effects.
 3. `captions.py` — emits an ASS subtitle file: a headline that slams in and
    overshoots, plus word-chunk captions that scale-pop.
 4. `build.py` — plans bar-aligned segment lengths, then builds one
-   `-filter_complex` graph: per-clip zoom punch + shake, concat, RGB glitch at
-   each cut, glitter overlay, burned-in captions, and the music bed.
+   `-filter_complex` graph: per-clip speed ramp, zoom punch + shake and colour
+   grade, concat, RGB glitch at selected cuts, white flashes, glitter overlay,
+   burned-in captions, and the music bed.
+
+### Per-segment controls (`script.json`)
+
+`segments[]` takes `start`, `bars`, `speed`, `look` and `grain`. `speed` below
+1 is slow motion: the segment consumes less source and is stretched to fill its
+bars, so cuts stay on the beat. `look` selects a grade from `LOOKS` in
+`build.py`. Alongside them, `flashes` adds white hits, `glitch_cuts` limits the
+RGB glitch to chosen cuts, and `sparkle_start` holds the glitter off until a
+given time. Together these let one edit run a flat desaturated first act and
+snap to full colour on a reveal.
+
+### Gotcha: blend needs RGB
+
+`screen` is an RGB operation. Handed yuv, `blend` screens the chroma planes
+independently and the frame turns magenta. Whether the chain arrives in RGB
+depends on which filters precede it — `rgbashift` forces RGB, `eq` forces yuv —
+so both blend inputs are pinned with `format=gbrp` rather than left to
+negotiation.
 
 ## Requirements
 

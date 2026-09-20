@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
-"""Assemble four clips into a beat-synced vertical Short.
+"""Assemble clips into a beat-synced vertical Short.
 
-Pipeline: beat-aligned cuts -> per-clip zoom punch + shake -> RGB glitch at
-each cut -> glitter overlay (screen blend) -> animated captions -> music bed.
+Pipeline: beat-aligned cuts -> per-clip speed ramp, zoom punch + shake and
+colour grade -> transitions at each cut -> glitter overlay (screen blend)
+-> animated captions -> music bed.
+
+Per-segment `look` and `speed`, plus `flashes` and `sparkle_start`, let one
+edit run a flat desaturated first act and snap to full colour on a reveal.
 """
 import argparse
 import json
@@ -13,6 +17,16 @@ import sys
 from captions import Ass
 
 W, H, FPS = 1080, 1920, 30
+
+# Named grades. Chosen so a "before" beat reads deliberately flat and cold,
+# and the reveal lands as a jump in saturation and contrast rather than a
+# change the viewer has to look for.
+LOOKS = {
+    "flat":    {"sat": 0.42, "con": 1.06, "gam": 0.94, "bri": -0.03, "sharp": 0.30},
+    "cool":    {"sat": 0.62, "con": 1.08, "gam": 0.97, "bri": -0.02, "sharp": 0.35},
+    "normal":  {"sat": 1.15, "con": 1.05, "gam": 1.00, "bri": 0.00,  "sharp": 0.45},
+    "reveal":  {"sat": 1.52, "con": 1.16, "gam": 1.03, "bri": 0.02,  "sharp": 0.70},
+}
 
 
 def run(cmd, **kw):
@@ -46,47 +60,44 @@ def probe(ffmpeg, path):
     return dur, w or W, h or H
 
 
-def plan(durations, spb, target=30.0, bars_min=2, bars_max=5, override=None):
-    """Give each clip a bar-aligned slice, biased toward filling `target`.
+def plan(durations, spb, spec, target=20.0):
+    """Resolve each clip's slice.
 
-    `override` lets the script file pick the exact in-point and bar count per
-    clip, which is how the hand-picked moments get used; anything it leaves out
-    falls back to the automatic choice below.
+    Returns dicts with the output length (always a whole number of bars, so
+    every cut lands on a downbeat), the source length to consume, and the
+    playback rate. `speed` below 1 is slow motion: the segment eats less
+    source and is stretched to fill its bars.
     """
     bar = spb * 4
-
-    if override:
-        segs = []
-        for i, d in enumerate(durations):
-            o = override[i] if i < len(override) else {}
-            bars = o.get("bars")
-            start = float(o.get("start", 0.0))
-            if bars is None:
-                bars = max(1, int((d - start - 0.05) // bar))
-            length = bars * bar
-            if start + length > d - 0.02:      # never run past the last frame
-                length = max(bar / 2, (d - start - 0.05) // bar * bar)
-            segs.append((round(start, 3), round(length, 3)))
-        return segs
-
-    n = len(durations)
-    want_bars = max(bars_min, round(target / bar / n))
-
     segs = []
-    for d in durations:
-        usable = max(0.0, d - 0.10)  # keep off the very last frame
-        bars = min(bars_max, want_bars, int(usable // bar))
-        if bars < 1:
-            # Clip is shorter than one bar: take a half-bar if we can.
-            length = min(usable, bar / 2)
-            if length < 0.3:
-                length = usable
-        else:
-            length = bars * bar
-        # Start a little into the clip so we skip camera settling, when there
-        # is enough material to afford it.
-        start = min(0.25, max(0.0, usable - length)) if usable - length > 0.4 else 0.0
-        segs.append((round(start, 3), round(length, 3)))
+    for i, d in enumerate(durations):
+        o = (spec[i] if spec and i < len(spec) else {}) or {}
+        start = float(o.get("start", 0.0))
+        speed = float(o.get("speed", 1.0))
+        bars = o.get("bars")
+
+        if bars is None:
+            bars = max(1, int(((d - start - 0.05) / speed) // bar))
+        out_len = bars * bar
+        trim = out_len * speed
+
+        avail = d - start - 0.02
+        if trim > avail:                    # never read past the last frame
+            bars = max(1, int((avail / speed) // bar))
+            out_len = bars * bar
+            trim = out_len * speed
+            if trim > avail:                # still short: take a half bar
+                out_len = bar / 2
+                trim = min(avail, out_len * speed)
+
+        segs.append({
+            "start": round(start, 3),
+            "trim": round(trim, 3),
+            "out": round(out_len, 3),
+            "speed": speed,
+            "look": o.get("look", "normal"),
+            "grain": float(o.get("grain", 0.0)),
+        })
     return segs
 
 
@@ -94,13 +105,11 @@ def esc_filter_path(p):
     return p.replace("\\", "/").replace(":", "\\:").replace("'", "\\'")
 
 
-def build_filtergraph(n_clips, segs, spb, cuts, sparkle, ass_path, total):
-    """Assemble the full -filter_complex string."""
+def build_filtergraph(segs, spb, cuts, ass_path, total, flashes,
+                      sparkle_start, glitch_cuts):
     parts = []
 
-    # --- per-clip: fit to frame, then beat-driven zoom punch + shake ---
-    for i, (st, ln) in enumerate(segs):
-        # Downbeat-aware punch: every beat kicks, bar starts kick harder.
+    for i, s in enumerate(segs):
         beat_p = f"mod(it,{spb:.5f})/{spb:.5f}"
         bar_p = f"mod(it,{spb * 4:.5f})/{spb * 4:.5f}"
         zoom = (
@@ -109,14 +118,17 @@ def build_filtergraph(n_clips, segs, spb, cuts, sparkle, ass_path, total):
             f"+0.055*exp(-pow({bar_p}/0.10,2))"
         )
         env = f"exp(-pow({beat_p}/0.26,2))"
-        # Alternate shake direction per clip so consecutive cuts feel distinct.
         sgn = 1 if i % 2 == 0 else -1
         sx = f"{sgn * 26}*{env}*sin(6.28318*10.5*it)"
         sy = f"{sgn * 20}*{env}*cos(6.28318*8.5*it)"
 
-        parts.append(
+        lk = LOOKS.get(s["look"], LOOKS["normal"])
+        # setpts runs before everything else so `it` inside zoompan is the
+        # segment's own output time, keeping the beat maths aligned after a ramp.
+        chain = (
             f"[{i}:v]"
-            f"trim=start={st}:duration={ln},setpts=PTS-STARTPTS,"
+            f"trim=start={s['start']}:duration={s['trim']},"
+            f"setpts={1.0 / s['speed']:.6f}*(PTS-STARTPTS),"
             f"fps={FPS},"
             f"scale={W}:{H}:force_original_aspect_ratio=increase,"
             f"crop={W}:{H},"
@@ -125,19 +137,24 @@ def build_filtergraph(n_clips, segs, spb, cuts, sparkle, ass_path, total):
             f"x='iw/2-(iw/zoom/2)+{sx}':"
             f"y='ih/2-(ih/zoom/2)+{sy}':"
             f"d=1:s={W}x{H}:fps={FPS},"
-            f"eq=saturation=1.22:contrast=1.06,"
-            f"unsharp=5:5:0.45"
-            f"[v{i}]"
+            f"eq=saturation={lk['sat']}:contrast={lk['con']}:"
+            f"gamma={lk['gam']}:brightness={lk['bri']},"
+            f"unsharp=5:5:{lk['sharp']}"
         )
+        if s["grain"] > 0:
+            chain += f",noise=alls={int(s['grain'])}:allf=t"
+        parts.append(chain + f"[v{i}]")
 
-    # --- concat the four segments ---
-    parts.append("".join(f"[v{i}]" for i in range(n_clips)) +
-                 f"concat=n={n_clips}:v=1:a=0[cat]")
+    parts.append("".join(f"[v{i}]" for i in range(len(segs))) +
+                 f"concat=n={len(segs)}:v=1:a=0[cat]")
 
-    # --- RGB glitch at each cut, in short stepped windows ---
+    # RGB glitch only on the cuts that ask for it, so the reveal can be a
+    # clean flash instead of competing with a glitch.
     src = "cat"
     step = 0.045
     for k, tc in enumerate(cuts):
+        if k not in glitch_cuts:
+            continue
         for j, (rh, rv, bh, bv) in enumerate(
             [(-16, 6, 14, -5), (22, -9, -19, 8), (-10, 4, 9, -3)]
         ):
@@ -149,7 +166,6 @@ def build_filtergraph(n_clips, segs, spb, cuts, sparkle, ass_path, total):
                 f"enable='between(t,{a:.3f},{b:.3f})'[{dst}]"
             )
             src = dst
-        # A dusting of noise sells the digital-glitch read.
         dst = f"gn{k}"
         parts.append(
             f"[{src}]noise=alls=26:allf=t+u:"
@@ -157,14 +173,34 @@ def build_filtergraph(n_clips, segs, spb, cuts, sparkle, ass_path, total):
         )
         src = dst
 
-    # --- glitter overlay, screen-blended so black drops out ---
-    parts.append(
-        f"[{n_clips}:v]fps={FPS},scale={W}:{H},setsar=1,"
-        f"trim=duration={total:.3f},setpts=PTS-STARTPTS[spk]"
-    )
-    parts.append(f"[{src}][spk]blend=all_mode=screen:all_opacity=0.85[glit]")
+    # White flashes, as a per-frame brightness spike.
+    if flashes:
+        terms = "+".join(
+            f"{f.get('amount', 0.75)}*exp(-pow((t-{f['t']:.3f})/{f.get('width', 0.085)},2))"
+            for f in flashes
+        )
+        parts.append(
+            f"[{src}]eq=eval=frame:brightness='{terms}':"
+            f"saturation='1-0.55*({terms})'[fl]"
+        )
+        src = "fl"
 
-    # --- captions ---
+    # Glitter. Held black (invisible under screen blend) until the reveal.
+    spk = f"[{len(segs)}:v]fps={FPS},scale={W}:{H},setsar=1,trim=duration={total:.3f},setpts=PTS-STARTPTS"
+    if sparkle_start is not None:
+        spk += f",fade=t=in:st={sparkle_start:.3f}:d=0.30"
+    # Both blend inputs are pinned to gbrp. `screen` is an RGB operation, and
+    # if blend is handed yuv it screens the chroma planes independently, which
+    # drives them toward the maximum and turns the whole frame magenta. Whether
+    # the chain happens to arrive in RGB depends on which filters precede this
+    # (rgbashift forces RGB, eq forces yuv), so it is set explicitly rather
+    # than left to format negotiation.
+    parts.append(spk + ",format=gbrp[spk]")
+    parts.append(
+        f"[{src}]format=gbrp[base];"
+        f"[base][spk]blend=all_mode=screen:all_opacity=0.9,format=yuv420p[glit]"
+    )
+
     parts.append(
         f"[glit]subtitles='{esc_filter_path(ass_path)}':"
         f"fontsdir=/usr/share/fonts[outv]"
@@ -177,11 +213,11 @@ def main():
     ap.add_argument("--clips", nargs="+", required=True)
     ap.add_argument("--music", required=True)
     ap.add_argument("--beats", required=True)
-    ap.add_argument("--script", required=True, help="JSON with hook/caption copy")
+    ap.add_argument("--script", required=True)
     ap.add_argument("--sparkle", required=True)
     ap.add_argument("--out", required=True)
     ap.add_argument("--ffmpeg", required=True)
-    ap.add_argument("--target", type=float, default=30.0)
+    ap.add_argument("--target", type=float, default=20.0)
     ap.add_argument("--plan-only", action="store_true")
     a = ap.parse_args()
 
@@ -195,24 +231,22 @@ def main():
         durations.append(d)
         print(f"  {os.path.basename(c)}: {d:.2f}s {w}x{h}", file=sys.stderr)
 
-    segs = plan(durations, spb, target=a.target, override=script.get("segments"))
-    lengths = [ln for _, ln in segs]
-    total = sum(lengths)
-    cuts = []
-    acc = 0.0
-    for ln in lengths[:-1]:
-        acc += ln
-        cuts.append(acc)
+    segs = plan(durations, spb, script.get("segments"), target=a.target)
+    total = sum(s["out"] for s in segs)
+    cuts, acc = [], 0.0
+    for s in segs[:-1]:
+        acc += s["out"]
+        cuts.append(round(acc, 4))
 
-    print(f"  plan: {[f'{s}+{l}' for s, l in segs]}  total={total:.2f}s",
-          file=sys.stderr)
-    print(f"  cuts at: {[round(c, 3) for c in cuts]}", file=sys.stderr)
+    for i, s in enumerate(segs):
+        print(f"  seg{i}: src {s['start']}+{s['trim']} -> {s['out']}s "
+              f"@{s['speed']}x [{s['look']}]", file=sys.stderr)
+    print(f"  total={total:.2f}s  cuts={cuts}", file=sys.stderr)
 
     if a.plan_only:
         json.dump({"segs": segs, "total": total, "cuts": cuts}, sys.stdout)
         return
 
-    # --- captions from the script file ---
     ass = Ass()
     hook = script["hook"]
     ass.hook(hook.get("start", 0.15), hook.get("end", 2.6), hook["lines"],
@@ -221,12 +255,17 @@ def main():
     ass.pop(cues, y=script.get("caption_y", 1430),
             accent_words=script.get("accent_words", []))
     for t in script.get("tags", []):
-        ass.tag(t["start"], t["end"], t["text"])
+        ass.tag(t["start"], t["end"], t["text"], y=t.get("y", 1760))
     ass_path = os.path.abspath("work/captions.ass")
     ass.render(ass_path)
-    print(f"  captions -> {ass_path} ({len(ass.events)} events)", file=sys.stderr)
+    print(f"  captions -> {len(ass.events)} events", file=sys.stderr)
 
-    fg = build_filtergraph(len(a.clips), segs, spb, cuts, a.sparkle, ass_path, total)
+    fg = build_filtergraph(
+        segs, spb, cuts, ass_path, total,
+        script.get("flashes", []),
+        script.get("sparkle_start"),
+        set(script.get("glitch_cuts", range(len(cuts)))),
+    )
     with open("work/filtergraph.txt", "w") as f:
         f.write(fg.replace(";", ";\n"))
 

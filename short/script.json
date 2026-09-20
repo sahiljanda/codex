@@ -1,31 +1,34 @@
 {
-  "_comment": "Concept: setup-reversal. The hook promises a sweet dog and withholds the 24th hour, then the footage is the answer. Captions form one escalating sentence - sheep, then rug, then me, then you - instead of narrating each clip. The last clip charges the lens, so 'THEN YOU' breaks the fourth wall and loops back into the hook.",
+  "_comment": "Fit-check reversal. Acts 1-2 run flat, desaturated and grainy while he refuses the jacket; the reveal cut snaps to a saturated grade with a white flash, a slow-motion runway ramp and the glitter finally switching on. Inputs: n8 n8 n7 n7 n6 (n8 and n7 each supply two different moments).",
 
   "segments": [
-    {"start": 2.40, "bars": 4, "_note": "c2 portrait: big expressive face, paws at the sheep"},
-    {"start": 1.90, "bars": 3, "_note": "c3: zoomies on the rug with the yellow ball"},
-    {"start": 0.05, "bars": 1, "_note": "c4: tug-of-war, only 1.9s of source"},
-    {"start": 11.90, "bars": 1, "_note": "c5: 11.9-13.6 is the run at camera, ending on a full-frame face. Past 13.8 it degrades to motion blur, so this stays at one bar."}
+    {"start": 0.25,  "bars": 1, "look": "flat", "grain": 8,  "_note": "n8: sprawled flat on the rug, doing absolutely nothing"},
+    {"start": 2.20,  "bars": 1, "look": "flat", "grain": 8,  "_note": "n8: the jacket lands on him and he bolts upright"},
+    {"start": 4.50,  "bars": 2, "look": "cool", "grain": 5,  "_note": "n7: wrestling and refusing"},
+    {"start": 16.00, "bars": 1, "look": "cool", "grain": 5,  "_note": "n7: it is finally on him"},
+    {"start": 0.02,  "bars": 2, "speed": 0.74, "look": "reveal", "_note": "n6: the walk at camera. Only 2.65s of source exists, so the ramp is 0.74x - enough to fill two bars with ~0.1s of headroom - ending on a full-frame face."}
   ],
 
-  "hook": {"start": 0.15, "end": 2.90, "lines": ["HE'S SWEET", "23 HOURS", "A DAY"], "accent_idx": 1, "y": 1150},
+  "flashes": [{"t": 8.592, "amount": 0.9, "width": 0.09}],
+  "glitch_cuts": [0, 1, 2],
+  "sparkle_start": 8.592,
+
+  "hook": {"start": 0.15, "end": 3.30, "lines": ["HE DIDN'T", "WANT TO", "WEAR IT"], "accent_idx": 2, "y": 560},
 
   "caption_y": 1400,
-  "accent_words": ["24", "YOU"],
+  "accent_words": ["WON", "HIMSELF"],
 
   "captions": [
-    {"start": 3.10, "end": 4.70, "text": "meet hour 24"},
-    {"start": 4.90, "end": 6.70, "text": "the sheep goes first"},
+    {"start": 3.60,  "end": 5.10,  "text": "he was not having it"},
+    {"start": 5.30,  "end": 6.75,  "text": "zero cooperation"},
 
-    {"start": 7.10, "end": 9.30, "text": "then the rug gets it"},
-    {"start": 9.60, "end": 11.85, "text": "this is not the same dog"},
+    {"start": 7.00,  "end": 8.45,  "text": "i won"},
 
-    {"start": 12.15, "end": 13.68, "text": "then he comes for me"},
-
-    {"start": 13.95, "end": 15.45, "text": "then you"}
+    {"start": 8.85,  "end": 10.30, "text": "then he saw himself"},
+    {"start": 10.55, "end": 11.95, "text": "he changed his mind"}
   ],
 
   "tags": [
-    {"start": 14.50, "end": 15.46, "text": "9:41 pm. every night."}
+    {"start": 10.60, "end": 12.03, "text": "fit check: passed"}
   ]
 }
