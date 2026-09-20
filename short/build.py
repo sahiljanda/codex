@@ -75,20 +75,32 @@ def plan(durations, spb, spec, target=20.0):
         start = float(o.get("start", 0.0))
         speed = float(o.get("speed", 1.0))
         bars = o.get("bars")
+        # `beats` gives finer control than whole bars, for when a shot has to
+        # be a particular length (a 1.5s opener is 3.5 beats, not a whole bar).
+        beats = o.get("beats")
 
-        if bars is None:
-            bars = max(1, int(((d - start - 0.05) / speed) // bar))
-        out_len = bars * bar
+        if o.get("secs") is not None:
+            # Explicit duration, for cuts driven by a voiceover rather than
+            # the music: the narration's phrase boundaries set the timing.
+            unit, count = float(o["secs"]), 1.0
+        elif beats is not None:
+            unit, count = spb, float(beats)
+        elif bars is not None:
+            unit, count = bar, float(bars)
+        else:
+            unit, count = bar, max(1.0, float(int(((d - start - 0.05) / speed) // bar)))
+
+        out_len = count * unit
         trim = out_len * speed
 
         avail = d - start - 0.02
         if trim > avail:                    # never read past the last frame
-            bars = max(1, int((avail / speed) // bar))
-            out_len = bars * bar
+            count = max(1.0, float(int((avail / speed) / unit)))
+            out_len = count * unit
             trim = out_len * speed
-            if trim > avail:                # still short: take a half bar
-                out_len = bar / 2
-                trim = min(avail, out_len * speed)
+            if trim > avail:                # still short: take what is there
+                trim = avail
+                out_len = trim / speed
 
         segs.append({
             "start": round(start, 3),
@@ -97,6 +109,7 @@ def plan(durations, spb, spec, target=20.0):
             "speed": speed,
             "look": o.get("look", "normal"),
             "grain": float(o.get("grain", 0.0)),
+            "motion": o.get("motion", "punch"),
         })
     return segs
 
@@ -110,17 +123,26 @@ def build_filtergraph(segs, spb, cuts, ass_path, total, flashes,
     parts = []
 
     for i, s in enumerate(segs):
-        beat_p = f"mod(it,{spb:.5f})/{spb:.5f}"
-        bar_p = f"mod(it,{spb * 4:.5f})/{spb * 4:.5f}"
-        zoom = (
-            f"1.055"
-            f"+0.085*exp(-pow({beat_p}/0.20,2))"
-            f"+0.055*exp(-pow({bar_p}/0.10,2))"
-        )
-        env = f"exp(-pow({beat_p}/0.26,2))"
-        sgn = 1 if i % 2 == 0 else -1
-        sx = f"{sgn * 26}*{env}*sin(6.28318*10.5*it)"
-        sy = f"{sgn * 20}*{env}*cos(6.28318*8.5*it)"
+        if s["motion"] == "calm":
+            # Slow continuous push, alternating direction per shot. A
+            # documentary read wants drift, not a beat kick.
+            sgn = 1 if i % 2 == 0 else -1
+            rate = 0.045 / max(0.4, s["out"])
+            zoom = f"1.02+{rate:.5f}*it" if sgn > 0 else f"1.065-{rate:.5f}*it"
+            sx = f"{sgn * 5}*sin(6.28318*0.08*it)"
+            sy = f"{sgn * 4}*cos(6.28318*0.06*it)"
+        else:
+            beat_p = f"mod(it,{spb:.5f})/{spb:.5f}"
+            bar_p = f"mod(it,{spb * 4:.5f})/{spb * 4:.5f}"
+            zoom = (
+                f"1.055"
+                f"+0.085*exp(-pow({beat_p}/0.20,2))"
+                f"+0.055*exp(-pow({bar_p}/0.10,2))"
+            )
+            env = f"exp(-pow({beat_p}/0.26,2))"
+            sgn = 1 if i % 2 == 0 else -1
+            sx = f"{sgn * 26}*{env}*sin(6.28318*10.5*it)"
+            sy = f"{sgn * 20}*{env}*cos(6.28318*8.5*it)"
 
         lk = LOOKS.get(s["look"], LOOKS["normal"])
         # setpts runs before everything else so `it` inside zoompan is the
@@ -218,6 +240,8 @@ def main():
     ap.add_argument("--out", required=True)
     ap.add_argument("--ffmpeg", required=True)
     ap.add_argument("--target", type=float, default=20.0)
+    ap.add_argument("--vo", default=None, help="voiceover track to mix over the music")
+    ap.add_argument("--music-gain", type=float, default=1.0)
     ap.add_argument("--crf", type=int, default=19)
     ap.add_argument("--plan-only", action="store_true")
     a = ap.parse_args()
@@ -249,12 +273,17 @@ def main():
         return
 
     ass = Ass()
-    hook = script["hook"]
-    ass.hook(hook.get("start", 0.15), hook.get("end", 2.6), hook["lines"],
-             y=hook.get("y", 760), accent_idx=hook.get("accent_idx"))
+    hook = script.get("hook")
+    if hook:
+        ass.hook(hook.get("start", 0.15), hook.get("end", 2.6), hook["lines"],
+                 y=hook.get("y", 760), accent_idx=hook.get("accent_idx"))
     cues = [(c["start"], c["end"], c["text"]) for c in script.get("captions", [])]
     ass.pop(cues, y=script.get("caption_y", 1430),
             accent_words=script.get("accent_words", []))
+    subs = [(c["start"], c["end"], c["text"]) for c in script.get("subs", [])]
+    if subs:
+        ass.sub(subs, y=script.get("sub_y", 1500),
+                accent_words=script.get("accent_words", []))
     for t in script.get("tags", []):
         ass.tag(t["start"], t["end"], t["text"], y=t.get("y", 1760))
     ass_path = os.path.abspath("work/captions.ass")
@@ -274,14 +303,49 @@ def main():
     for c in a.clips:
         cmd += ["-i", c]
     cmd += ["-i", a.sparkle, "-i", a.music]
+    mus = len(a.clips) + 1
+    if a.vo:
+        cmd += ["-i", a.vo]
+        dips = script.get("music_dips", [])
+        dip_expr = "*".join(
+            f"(1-{d.get('amount', 0.6)}*between(t,{d['start']},{d['end']}))"
+            for d in dips
+        )
+        # sidechaincompress pulls the music down whenever the narrator speaks,
+        # so the voice stays intelligible without riding a fader by hand.
+        fg += (
+            # Music dips further over any window listed in `music_dips`, used
+            # to clear space for a quiet closing line that the sidechain alone
+            # does not duck hard enough.
+            f";[{mus}:a]volume={a.music_gain}"
+            + (f",volume=eval=frame:volume='{dip_expr}'" if dip_expr else "")
+            + "[mus]"
+            # speechnorm first: TTS often trails off on a final word (here
+            # "Magnificent" came back 13 dB under the rest of the read), which
+            # both buries the payoff line and is too quiet to trigger the
+            # ducker below. Levelling it fixes the line and the ducking.
+            f";[{mus + 1}:a]aformat=channel_layouts=stereo,"
+            f"speechnorm=e=12.5:r=0.0001:l=1,volume=1.15,asplit=2[vo1][vo2]"
+            f";[mus][vo1]sidechaincompress="
+            f"threshold=0.02:ratio=12:attack=15:release=420:makeup=1[duck]"
+            f";[duck][vo2]amix=inputs=2:duration=first:dropout_transition=0,"
+            f"afade=t=in:st=0:d=0.2,"
+            f"afade=t=out:st={max(0, total - 0.30):.3f}:d=0.30,"
+            f"loudnorm=I=-14:TP=-1.5:LRA=11[outa]"
+        )
+        amap = "[outa]"
+        af = []
+    else:
+        amap = f"{mus}:a"
+        af = ["-af", f"afade=t=in:st=0:d=0.25,"
+                     f"afade=t=out:st={max(0, total - 0.8):.3f}:d=0.8,"
+                     f"loudnorm=I=-14:TP=-1.5:LRA=11"]
     cmd += [
         "-filter_complex", fg,
         "-map", "[outv]",
-        "-map", f"{len(a.clips) + 1}:a",
+        "-map", amap,
         "-t", f"{total:.3f}",
-        "-af", f"afade=t=in:st=0:d=0.25,"
-               f"afade=t=out:st={max(0, total - 0.8):.3f}:d=0.8,"
-               f"loudnorm=I=-14:TP=-1.5:LRA=11",
+        *af,
         "-c:v", "libx264", "-preset", "slow", "-crf", str(a.crf),
         "-profile:v", "high", "-level", "4.1",
         "-pix_fmt", "yuv420p", "-r", str(FPS),

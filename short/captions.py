@@ -60,6 +60,8 @@ Style: Hook,DejaVu Sans,118,&H00FFFFFF,&H000000FF,&H00101010,&H99000000,-1,0,0,0
 Style: HookAcc,DejaVu Sans,118,&H0033E0FF,&H000000FF,&H00101010,&H99000000,-1,0,0,0,104,104,1.5,0,1,9,5,5,60,60,0,1
 Style: Cap,DejaVu Sans,92,&H00FFFFFF,&H000000FF,&H00101010,&H99000000,-1,0,0,0,102,102,1.0,0,1,8,4,2,70,70,0,1
 Style: CapAcc,DejaVu Sans,92,&H0033E0FF,&H000000FF,&H00101010,&H99000000,-1,0,0,0,102,102,1.0,0,1,8,4,2,70,70,0,1
+Style: Sub,DejaVu Sans,74,&H00FFFFFF,&H000000FF,&H00101010,&H99000000,-1,0,0,0,100,100,0.5,0,1,7,4,2,70,70,0,1
+Style: SubAcc,DejaVu Sans,74,&H0033E0FF,&H000000FF,&H00101010,&H99000000,-1,0,0,0,100,100,0.5,0,1,7,4,2,70,70,0,1
 Style: Tag,DejaVu Sans,58,&H00FFFFFF,&H000000FF,&H00101010,&H99000000,-1,0,0,0,100,100,2.0,0,1,6,3,8,60,60,70,1
 
 [Events]
@@ -147,6 +149,29 @@ class Ass:
                 ) % (PLAY_W // 2, y, size)
                 self._add(3, cs, ce, style, tags + esc(txt))
 
+    def sub(self, cues, y=1500, accent_words=()):
+        """Narration subtitles: one phrase at a time, no bounce.
+
+        A documentary read wants the text to settle under the voice rather
+        than punch on every word, so these fade and rise slightly instead of
+        scale-popping the way `pop` does.
+        """
+        acc = {w.upper().strip(".,!?") for w in accent_words}
+        for start, end, text in cues:
+            lines = _wrap(text.upper(), CAP_MAX_W, 74)
+            size = fit_size(lines, 74, 100, CAP_MAX_W, overshoot=1.02)
+            line_h = int(size * 1.24)
+            top = y - (len(lines) - 1) * line_h / 2
+            for i, ln in enumerate(lines):
+                style = "SubAcc" if acc and any(
+                    w.strip(".,!?") in acc for w in ln.split()
+                ) else "Sub"
+                tags = (
+                    r"{\an5\pos(%d,%d)\fs%d\fad(90,110)"
+                    r"\fscx104\fscy104\t(0,150,\fscx100\fscy100)}"
+                ) % (PLAY_W // 2, int(top + i * line_h), size)
+                self._add(3, start, end, style, tags + esc(ln))
+
     def tag(self, start, end, text, y=1760):
         tags = r"{\an5\pos(%d,%d)\fad(120,160)\alpha&H30&}" % (PLAY_W // 2, y)
         self._add(1, start, end, "Tag", tags + esc(text.upper()))
@@ -156,6 +181,21 @@ class Ass:
             f.write(HEADER)
             f.write("\n".join(self.events))
             f.write("\n")
+
+
+def _wrap(text, max_w, size):
+    """Break a phrase into as few lines as fit within `max_w`."""
+    words, lines, cur = text.split(), [], []
+    for w in words:
+        trial = " ".join(cur + [w])
+        if cur and _measure(trial, size) > max_w:
+            lines.append(" ".join(cur))
+            cur = [w]
+        else:
+            cur.append(w)
+    if cur:
+        lines.append(" ".join(cur))
+    return lines
 
 
 def _chunk(words):

@@ -1,34 +1,111 @@
 {
-  "_comment": "Fit-check reversal. Acts 1-2 run flat, desaturated and grainy while he refuses the jacket; the reveal cut snaps to a saturated grade with a white flash, a slow-motion runway ramp and the glitter finally switching on. Inputs: n8 n8 n7 n7 n6 (n8 and n7 each supply two different moments).",
-
+  "_comment": "Nature-documentary parody. Cuts follow the narrator's phrase boundaries (measured from the VO with silencedetect), not the music, which is why segments use explicit `secs`. Opening shot is 1.5s. Inputs: n2 n2 n1 n4 n1 n3 n4 n4.",
   "segments": [
-    {"start": 0.25,  "bars": 1, "look": "flat", "grain": 8,  "_note": "n8: sprawled flat on the rug, doing absolutely nothing"},
-    {"start": 2.20,  "bars": 1, "look": "flat", "grain": 8,  "_note": "n8: the jacket lands on him and he bolts upright"},
-    {"start": 4.50,  "bars": 2, "look": "cool", "grain": 5,  "_note": "n7: wrestling and refusing"},
-    {"start": 16.00, "bars": 1, "look": "cool", "grain": 5,  "_note": "n7: it is finally on him"},
-    {"start": 0.02,  "bars": 2, "speed": 0.74, "look": "reveal", "_note": "n6: the walk at camera. Only 2.65s of source exists, so the ramp is 0.74x - enough to fill two bars with ~0.1s of headroom - ending on a full-frame face."}
+    {
+      "start": 8.8,
+      "secs": 1.5,
+      "motion": "calm",
+      "_note": "n2: the pug, standing, staring down the lens. 1.5s and out."
+    },
+    {
+      "start": 10.6,
+      "secs": 1.8,
+      "motion": "calm",
+      "_note": "n2: still watching"
+    },
+    {
+      "start": 0.8,
+      "secs": 2.73,
+      "motion": "calm",
+      "_note": "n1: prey identified - the cardboard"
+    },
+    {
+      "start": 0.3,
+      "secs": 1.62,
+      "motion": "calm",
+      "_note": "n4: the Milk-Bone box itself"
+    },
+    {
+      "start": 4.0,
+      "secs": 2.88,
+      "motion": "calm",
+      "_note": "n1: the approach, such as it is"
+    },
+    {
+      "start": 0.5,
+      "secs": 2.6,
+      "motion": "calm",
+      "_note": "n3: head fully jammed inside the box"
+    },
+    {
+      "start": 1.5,
+      "secs": 1.92,
+      "motion": "calm",
+      "_note": "n4: the box is breached"
+    },
+    {
+      "start": 12.6,
+      "secs": 1.25,
+      "motion": "calm",
+      "look": "reveal",
+      "_note": "n4: biscuits all over the floor. Payoff."
+    }
   ],
-
-  "flashes": [{"t": 8.592, "amount": 0.9, "width": 0.09}],
-  "glitch_cuts": [0, 1, 2],
-  "sparkle_start": 8.592,
-
-  "hook": {"start": 0.15, "end": 3.30, "lines": ["HE DIDN'T", "WANT TO", "WEAR IT"], "accent_idx": 2, "y": 560},
-
-  "caption_y": 1400,
-  "accent_words": ["WON", "HIMSELF"],
-
-  "captions": [
-    {"start": 3.60,  "end": 5.10,  "text": "he was not having it"},
-    {"start": 5.30,  "end": 6.75,  "text": "zero cooperation"},
-
-    {"start": 7.00,  "end": 8.45,  "text": "i won"},
-
-    {"start": 8.85,  "end": 10.30, "text": "then he saw himself"},
-    {"start": 10.55, "end": 11.95, "text": "he changed his mind"}
+  "glitch_cuts": [],
+  "sparkle_start": 15.05,
+  "sub_y": 1500,
+  "accent_words": [
+    "MAGNIFICENT",
+    "BISCUITS"
   ],
-
-  "tags": [
-    {"start": 10.60, "end": 12.03, "text": "fit check: passed"}
+  "subs": [
+    {
+      "start": 0.05,
+      "end": 0.8,
+      "text": "The pug."
+    },
+    {
+      "start": 1.19,
+      "end": 2.8,
+      "text": "Nature's least athletic predator."
+    },
+    {
+      "start": 3.3,
+      "end": 5.05,
+      "text": "It has located its prey..."
+    },
+    {
+      "start": 6.03,
+      "end": 7.15,
+      "text": "a box of biscuits."
+    },
+    {
+      "start": 7.65,
+      "end": 10.05,
+      "text": "It approaches with no stealth whatsoever."
+    },
+    {
+      "start": 10.53,
+      "end": 12.4,
+      "text": "The attack lacks all technique."
+    },
+    {
+      "start": 13.13,
+      "end": 14.5,
+      "text": "But the box is breached."
+    },
+    {
+      "start": 15.05,
+      "end": 16.2,
+      "text": "Magnificent."
+    }
+  ],
+  "music_dips": [
+    {
+      "start": 14.85,
+      "end": 16.3,
+      "amount": 0.62,
+      "_note": "the closing line is the quietest in the read, so the score steps back for it"
+    }
   ]
 }

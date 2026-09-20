@@ -27,6 +27,21 @@ RGB glitch to chosen cuts, and `sparkle_start` holds the glitter off until a
 given time. Together these let one edit run a flat desaturated first act and
 snap to full colour on a reveal.
 
+### Narrated edits
+
+Pass `--vo` and the voiceover is mixed over the music, which is ducked under
+it by `sidechaincompress`. The voice is levelled with `speechnorm` first:
+TTS tends to trail off on a closing word, which both buries the line and
+leaves it too quiet to trigger the ducker. `music_dips` in `script.json`
+steps the score back further over a given window. Cuts for a narrated piece
+should use `secs` and follow the narration's phrase boundaries, which
+`silencedetect` will find:
+
+    ffmpeg -i vo.mp3 -af silencedetect=noise=-38dB:d=0.22 -f null -
+
+`motion: "calm"` swaps the beat punch for a slow drift, which suits a
+narrated read; `beats` allows cuts at beat rather than bar resolution.
+
 ### Gotcha: blend needs RGB
 
 `screen` is an RGB operation. Handed yuv, `blend` screens the chroma planes
