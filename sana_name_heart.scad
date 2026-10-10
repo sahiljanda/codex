@@ -25,9 +25,8 @@ function bez(p, t) =
     3 * (1 - t) * t * t * p[2] + t * t * t * p[3];
 
 // width along a stroke: blend start->end plus a swell in the middle
-function wid(s, t) =
-    let (w0 = s[4], w1 = s[5], sw = len(s) > 6 ? s[6] : 0)
-    w0 + (w1 - w0) * t + sw * sin(180 * t);
+function swell_of(s) = len(s) > 6 ? s[6] : 0;
+function wid(s, t) = s[4] + (s[5] - s[4]) * t + swell_of(s) * sin(180 * t);
 
 // s = [p0, p1, p2, p3, start_w, end_w, swell]
 module stroke(s, n = 40) {
@@ -41,13 +40,13 @@ module stroke(s, n = 40) {
     }
 }
 
-module path(segs) { for (s = segs) stroke(s); }
+module stroke_list(segs) { for (s = segs) stroke(s); }
 
-module dot(p, d) { translate(p) circle(d = d); }
+module ball(p, d) { translate(p) circle(d = d); }
 
-H = hair;
-K = heavy;
-SW = K - H;        // swell amount for a thin-thick-thin stroke
+HW = hair;
+KW = heavy;
+SWL = KW - HW;        // swell amount for a thin-thick-thin stroke
 
 function rot(p, a) = [p[0] * cos(a) - p[1] * sin(a), p[0] * sin(a) + p[1] * cos(a)];
 
@@ -55,46 +54,46 @@ function rot(p, a) = [p[0] * cos(a) - p[1] * sin(a), p[0] * sin(a) + p[1] * cos(
 
 // Capital S: hairline entry sweeping up, curl over the top, swelling spine,
 // bottom bowl, then a baseline loop that flows into the "a".
-S = [
+S_STROKES = [
     // entry hairline rising from the left
-    [[2, 24], [6, 44], [26, 64], [42, 66], H, H],
+    [[2, 24], [6, 44], [26, 64], [42, 66], HW, HW],
     // over the top and turning down-left (starts to swell)
-    [[42, 66], [52, 66], [50, 56], [40, 56], H, H],
-    [[40, 56], [30, 56], [20, 54], [20, 46], H, K],
+    [[42, 66], [52, 66], [50, 56], [40, 56], HW, HW],
+    [[40, 56], [30, 56], [20, 54], [20, 46], HW, KW],
     // the spine: heavy diagonal swing to the right
-    [[20, 46], [20, 36], [42, 32], [42, 18], K, K],
+    [[20, 46], [20, 36], [42, 32], [42, 18], KW, KW],
     // bottom bowl curling back to the left
-    [[42, 18], [42, 2], [22, -1], [12, 4], K, H],
-    [[12, 4], [6, 8], [8, 14], [14, 12], H, H],
+    [[42, 18], [42, 2], [22, -1], [12, 4], KW, HW],
+    [[12, 4], [6, 8], [8, 14], [14, 12], HW, HW],
     // baseline swash out to the right
-    [[14, 12], [20, 10], [28, 1], [40, 1], H, H],
+    [[14, 12], [20, 10], [28, 1], [40, 1], HW, HW],
 ];
-S_ENTRY_BALL = [2, 24];
+S_START = [2, 24];
 
 // lowercase a at x = ox, x-height 24
 function a_letter(ox) = [
     // bowl: hairline over the top, heavy down the left, hairline back up
-    [[ox + 18, 21], [ox + 12, 26], [ox + 2, 24], [ox + 1, 13], H, H, SW * 0.6],
-    [[ox + 1, 13], [ox, 3], [ox + 6, -1], [ox + 12, 2], H, H, SW * 0.5],
-    [[ox + 12, 2], [ox + 16, 4], [ox + 18, 10], [ox + 19, 16], H, H],
+    [[ox + 18, 21], [ox + 12, 26], [ox + 2, 24], [ox + 1, 13], HW, HW, SWL * 0.6],
+    [[ox + 1, 13], [ox, 3], [ox + 6, -1], [ox + 12, 2], HW, HW, SWL * 0.5],
+    [[ox + 12, 2], [ox + 16, 4], [ox + 18, 10], [ox + 19, 16], HW, HW],
     // stem: heavy downstroke into a hairline exit
-    [[ox + 20, 24], [ox + 20, 14], [ox + 19, 5], [ox + 21, 1.5], H, H, SW],
+    [[ox + 20, 24], [ox + 20, 14], [ox + 19, 5], [ox + 21, 1.5], HW, HW, SWL],
 ];
 
 // lowercase n at x = ox
 function n_letter(ox) = [
     // first leg
-    [[ox + 3, 24], [ox + 3, 16], [ox + 3, 8], [ox + 3, 0.5], H, H, SW],
+    [[ox + 3, 24], [ox + 3, 16], [ox + 3, 8], [ox + 3, 0.5], HW, HW, SWL],
     // hairline arch
-    [[ox + 3, 8], [ox + 6, 22], [ox + 12, 27], [ox + 17, 25], H, H],
+    [[ox + 3, 8], [ox + 6, 22], [ox + 12, 27], [ox + 17, 25], HW, HW],
     // second leg swelling down
-    [[ox + 17, 25], [ox + 22, 23], [ox + 20, 10], [ox + 20, 4], H, H, SW],
-    [[ox + 20, 4], [ox + 20, 1], [ox + 22, 0.5], [ox + 23, 1.5], H, H],
+    [[ox + 17, 25], [ox + 22, 23], [ox + 20, 10], [ox + 20, 4], HW, HW, SWL],
+    [[ox + 20, 4], [ox + 20, 1], [ox + 22, 0.5], [ox + 23, 1.5], HW, HW],
 ];
 
 // joining hairline from (x0, 1.5) up to the top of the next letter
 function join(x0, x1) =
-    [[x0, 1.5], [x0 + 4, -1], [x1 - 4, 12], [x1, 23], H, H];
+    [[x0, 1.5], [x0 + 4, -1], [x1 - 4, 12], [x1, 23], HW, HW];
 
 A1 = 51;           // first a
 N  = A1 + 30;      // n
@@ -102,31 +101,31 @@ A2 = N + 33;       // second a
 
 // Heart: drawn like a pen stroke, heavier on the left lobe
 HEART = [
-    [[0, 0], [-6, 8], [-18, 13], [-18, 24], H + 0.6, H, SW * 0.35],
-    [[-18, 24], [-18, 33], [-6, 35], [0, 26], H, H],
-    [[0, 26], [6, 35], [18, 33], [18, 23], H, H],
-    [[18, 23], [18, 12], [6, 7], [0, 0], H, H + 0.6, SW * 0.25],
+    [[0, 0], [-6, 8], [-18, 13], [-18, 24], HW + 0.6, HW, SWL * 0.35],
+    [[-18, 24], [-18, 33], [-6, 35], [0, 26], HW, HW],
+    [[0, 26], [6, 35], [18, 33], [18, 23], HW, HW],
+    [[18, 23], [18, 12], [6, 7], [0, 0], HW, HW + 0.6, SWL * 0.25],
 ];
 heart_angle = -14;
 heart_pos   = [A2 + 52, 0];
 heart_join  = heart_pos + rot(bez(HEART[0], 0.5), heart_angle);
 
 module sana_upright() {
-    path(S);
-    dot(S_ENTRY_BALL, H * 1.9);
-    stroke([[40, 1], [46, 1], [A1 - 2, 14], [A1 + 9, 24.5], H, H]);
+    stroke_list(S_STROKES);
+    ball(S_START, HW * 1.9);
+    stroke([[40, 1], [46, 1], [A1 - 2, 14], [A1 + 9, 24.5], HW, HW]);
 
-    path(a_letter(A1));
+    stroke_list(a_letter(A1));
     stroke(join(A1 + 21, N + 3));
 
-    path(n_letter(N));
-    stroke([[N + 23, 1.5], [N + 28, 2], [A2 - 2, 14], [A2 + 9, 24.5], H, H]);
+    stroke_list(n_letter(N));
+    stroke([[N + 23, 1.5], [N + 28, 2], [A2 - 2, 14], [A2 + 9, 24.5], HW, HW]);
 
-    path(a_letter(A2));
+    stroke_list(a_letter(A2));
     // last a sweeps out into the heart
-    stroke([[A2 + 21, 1.5], [A2 + 27, -1], [A2 + 30, 12], heart_join, H, H]);
+    stroke([[A2 + 21, 1.5], [A2 + 27, -1], [A2 + 30, 12], heart_join, HW, HW]);
 
-    translate(heart_pos) rotate(heart_angle) path(HEART);
+    translate(heart_pos) rotate(heart_angle) stroke_list(HEART);
 }
 
 // italic slant (shear x by y)
