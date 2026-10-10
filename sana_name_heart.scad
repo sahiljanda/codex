@@ -4,7 +4,7 @@
 // Print lying flat (front face up), then stand it on its flat bottom.
 
 /* [Size] */
-scale_by  = 1.0;   // 1.0 = about 190 x 66 mm
+scale_by  = 1.0;   // 1.0 = about 182 x 66 mm
 thickness = 10;    // depth of the sign in mm (deeper = steadier)
 
 /* [Strokes] */
@@ -119,13 +119,13 @@ heart_angle = -8;
 heart_pos   = [A2 + 52, 3];
 heart_join  = heart_pos + rot(bez(HEART[0], 0.5), heart_angle);
 
-LIFT = 18;          // small letters float this high above the table
+LIFT = 9;           // small letters float this high above the table
 
 module sana_upright() {
     stroke_list(S_STROKES);
     ball(S_START, HW * 1.9);
     // S swash rises up into the floating "a"
-    stroke([[40, 1], [50, 3], [A1 - 5, LIFT + 18], [A1 + 7, LIFT + 24.5], HW, HW]);
+    stroke([[40, 1], [48, 2], [A1 - 5, LIFT + 16], [A1 + 7, LIFT + 24.5], HW, HW]);
 
     // floating lowercase letters
     translate([0, LIFT]) {
@@ -137,7 +137,7 @@ module sana_upright() {
     }
 
     // last a swoops down to the heart, which stands on the table
-    stroke([[A2 + 23, LIFT + 1.5], [A2 + 30, LIFT + 3], [A2 + 33, 16], heart_join, HW, HW]);
+    stroke([[A2 + 23, LIFT + 1.5], [A2 + 28, LIFT + 2.5], heart_join - [8, 1], heart_join, HW, HW]);
     translate(heart_pos) rotate(heart_angle) stroke_list(HEART);
 }
 
