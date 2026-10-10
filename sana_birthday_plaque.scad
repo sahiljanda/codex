@@ -82,11 +82,6 @@ S_STROKES = [
 S_START = [2, 24];
 
 // floating hairline swash off the S, sailing over the lowercase letters
-SWASH = [
-    [[48, 63], [66, 64], [92, 60], [112, 48], HW + 0.4, HW],
-    [[112, 48], [118, 44], [118, 38], [113, 39], HW, HW],
-    [[113, 39], [109, 40], [110, 45], [114, 44], HW, HW],
-];
 
 // lowercase a at x = ox: oval bowl + straight stem, x-height 24
 function a_letter(ox) = [
@@ -179,10 +174,10 @@ module caps(t, size, spacing) {
     text(t, size = size, font = serif, halign = "center", valign = "center", spacing = spacing);
 }
 
+function star_r(i, r) = i % 2 == 0 ? r : r * 0.42;
 module star(r, points = 5) {
     polygon([for (i = [0 : 2 * points - 1])
-        let (a = 90 + i * 180 / points, rr = i % 2 == 0 ? r : r * 0.42)
-        [rr * cos(a), rr * sin(a)]]);
+        [star_r(i, r) * cos(90 + i * 180 / points), star_r(i, r) * sin(90 + i * 180 / points)]]);
 }
 
 // thin line with a diamond in the middle
