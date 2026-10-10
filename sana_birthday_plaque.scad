@@ -1,13 +1,17 @@
-// "Happy First Birthday Sana" premium arched plaque
-// Arched plate with bevelled edge, double border, serif capitals,
+// "Happy First Birthday Sana" premium rectangular plaque
+// Layered plate (bevelled base + raised bevelled panel), double border,
+// corner stars, serif capitals,
 // hand-drawn calligraphy "Sana" + heart, and a "1" medallion with stars.
 // Uses only OpenSCAD's built-in Liberation Serif font - nothing to install.
-// Print flat, back down, no supports. Two-tone: change filament at plate_t.
+// Print flat, back down, no supports. Two-tone: change filament at plate_t + panel_t (5.6 mm).
 
 /* [Plaque] */
-plate_w   = 180;   // width in mm
-plate_h   = 220;   // height in mm (top is a half circle)
-plate_t   = 5;     // plate thickness
+plate_w   = 240;   // width in mm
+plate_h   = 176;   // height in mm
+plate_t   = 4;     // base plate thickness
+panel_in  = 8;     // raised panel inset from the edge
+panel_t   = 1.6;   // raised panel height
+corner_r  = 8;     // corner radius
 bevel     = 1.6;   // bevel around the plate edge
 relief    = 2.0;   // how far the artwork stands out
 keyhole   = true;  // keyhole slot on the back for hanging
@@ -21,7 +25,7 @@ serif = "Liberation Serif:style=Bold";
 hair  = 2.2;
 heavy = 6.4;
 slant = 6;
-name_scale = 0.78;
+name_scale = 0.8;
 
 // preview colours only
 plate_colour = "#1d2a3a";
@@ -155,18 +159,16 @@ module slanted() {
 }
 
 // arch: rectangle with a half-circle top, centred on the origin
-module arch(w, h) {
-    r = w / 2;
-    translate([0, -h / 2]) {
-        translate([-r, 0]) square([w, h - r]);
-        translate([0, h - r]) circle(r = r, $fn = 160);
-    }
+module rrect(w, h, r) {
+    offset(r = r) square([w - 2 * r, h - 2 * r], center = true);
 }
 
-module arch_ring(w, h, inset, width) {
+// border line inset from the plate edge
+module ring(inset, width) {
     difference() {
-        offset(delta = -inset) arch(w, h);
-        offset(delta = -inset - width) arch(w, h);
+        rrect(plate_w - 2 * inset, plate_h - 2 * inset, max(corner_r - inset / 3, 1));
+        rrect(plate_w - 2 * (inset + width), plate_h - 2 * (inset + width),
+              max(corner_r - inset / 3 - width, 0.5));
     }
 }
 
@@ -202,17 +204,18 @@ module medallion() {
 }
 
 module artwork_2d() {
-    arch_ring(plate_w, plate_h, 6, 1.8);
-    arch_ring(plate_w, plate_h, 10, 0.9);
-    translate([0, 62]) caps(line1, 9, 1.35);
-    translate([0, 45]) caps(line2, 9.5, 1.12);
-    translate([0, 31]) divider(70);
-    translate([0, -4]) name_art();
-    translate([0, -42]) divider(70);
-    translate([0, -68]) medallion();
+    ring(14, 1.8);
+    ring(18, 0.9);
+    for (x = [-1, 1], y = [-1, 1])
+        translate([x * (plate_w / 2 - 25), y * (plate_h / 2 - 25)]) star(4.5, 4);
+    translate([0, 56]) caps(line1, 9, 1.5);
+    translate([0, 41]) caps(line2, 10, 1.15);
+    translate([0, 29]) divider(80);
+    translate([0, -2]) name_art();
+    translate([0, -36]) divider(80);
+    translate([0, -56]) medallion();
 }
 
-// stepped bevel on the top edge of an extruded shape
 module bevelled(h, c, steps = 5) {
     linear_extrude(h - c) children();
     for (i = [1 : steps])
@@ -230,10 +233,17 @@ module keyhole_cut() {
 
 module plaque() {
     color(plate_colour) difference() {
-        bevelled(plate_t, bevel) arch(plate_w, plate_h);
-        if (keyhole) translate([0, plate_h / 2 - 45, 0]) keyhole_cut();
+        union() {
+            bevelled(plate_t, bevel) rrect(plate_w, plate_h, corner_r);
+            translate([0, 0, plate_t - 0.01])
+                bevelled(panel_t, 0.8, 4)
+                    rrect(plate_w - 2 * panel_in, plate_h - 2 * panel_in, corner_r - 2);
+        }
+        if (keyhole)
+            for (x = [-plate_w / 4, plate_w / 4])
+                translate([x, plate_h / 2 - 40, 0]) keyhole_cut();
     }
-    color(art_colour) translate([0, 0, plate_t - 0.01])
+    color(art_colour) translate([0, 0, plate_t + panel_t - 0.02])
         bevelled(relief, 0.5, 3) artwork_2d();
 }
 
