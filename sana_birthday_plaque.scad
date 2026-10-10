@@ -3,7 +3,7 @@
 // corner stars, serif capitals,
 // hand-drawn calligraphy "Sana" + heart, and a "1" medallion with stars.
 // Uses only OpenSCAD's built-in Liberation Serif font - nothing to install.
-// Print flat, back down, no supports. Two-tone: change filament at plate_t + panel_t (5.6 mm).
+// Print flat, back down, no supports.
 
 /* [Plaque] */
 plate_w   = 240;   // width in mm
@@ -26,10 +26,6 @@ hair  = 2.2;
 heavy = 6.4;
 slant = 6;
 name_scale = 0.8;
-
-// preview colours only
-plate_colour = "#1d2a3a";
-art_colour   = "#d4af37";
 
 $fn = 32;
 
@@ -232,7 +228,7 @@ module keyhole_cut() {
 }
 
 module plaque() {
-    color(plate_colour) difference() {
+    difference() {
         union() {
             bevelled(plate_t, bevel) rrect(plate_w, plate_h, corner_r);
             translate([0, 0, plate_t - 0.01])
@@ -243,7 +239,7 @@ module plaque() {
             for (x = [-plate_w / 4, plate_w / 4])
                 translate([x, plate_h / 2 - 40, 0]) keyhole_cut();
     }
-    color(art_colour) translate([0, 0, plate_t + panel_t - 0.02])
+    translate([0, 0, plate_t + panel_t - 0.02])
         bevelled(relief, 0.5, 3) artwork_2d();
 }
 
