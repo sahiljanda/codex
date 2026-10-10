@@ -10,7 +10,7 @@ thickness = 10;    // depth of the sign in mm (deeper = steadier)
 /* [Strokes] */
 hair  = 2.2;       // hairline width (keep >= 1.6 for strength)
 heavy = 6.4;       // widest point of the downstrokes
-slant = 14;        // italic slant in degrees
+slant = 6;         // italic slant in degrees
 
 /* [Finish] */
 chamfer   = 0.8;   // bevel on the front edges for a polished look
@@ -77,47 +77,45 @@ SWASH = [
     [[113, 39], [109, 40], [110, 45], [114, 44], HW, HW],
 ];
 
-// lowercase a at x = ox, x-height 24
+// lowercase a at x = ox: oval bowl + straight stem, x-height 24
 function a_letter(ox) = [
-    // bowl: hairline over the top, heavy down the left, hairline back up
-    [[ox + 18, 21], [ox + 12, 26], [ox + 2, 24], [ox + 1, 13], HW, HW, SWL * 0.6],
-    [[ox + 1, 13], [ox, 3], [ox + 6, -1], [ox + 12, 2], HW, HW, SWL * 0.5],
-    [[ox + 12, 2], [ox + 16, 4], [ox + 18, 10], [ox + 19, 16], HW, HW],
-    // stem: heavy downstroke into a hairline exit
-    [[ox + 20, 24], [ox + 20, 14], [ox + 19, 5], [ox + 21, 1.5], HW, HW, SWL],
+    // left of the bowl swells, right side stays thin
+    [[ox + 10, 24], [ox + 4, 24], [ox, 19], [ox, 12], HW, KW * 0.85],
+    [[ox, 12], [ox, 5], [ox + 4, 0], [ox + 10, 0], KW * 0.85, HW],
+    [[ox + 10, 0], [ox + 15, 0], [ox + 18, 5], [ox + 18, 12], HW, HW],
+    [[ox + 18, 12], [ox + 18, 19], [ox + 15, 24], [ox + 10, 24], HW, HW],
+    // straight stem with a small exit hook
+    [[ox + 18.5, 24], [ox + 18.5, 17], [ox + 18.5, 10], [ox + 18.5, 3], KW * 0.9, KW * 0.9],
+    [[ox + 18.5, 3], [ox + 18.5, 0.5], [ox + 20.5, 0], [ox + 23, 1.5], KW * 0.9, HW],
 ];
 
-// lowercase n at x = ox
+// lowercase n at x = ox: straight legs, smooth arch
 function n_letter(ox) = [
-    // first leg
-    [[ox + 3, 24], [ox + 3, 16], [ox + 3, 8], [ox + 3, 0.5], HW, HW, SWL],
-    // hairline arch
-    [[ox + 3, 8], [ox + 6, 22], [ox + 12, 27], [ox + 17, 25], HW, HW],
-    // second leg swelling down
-    [[ox + 17, 25], [ox + 22, 23], [ox + 20, 10], [ox + 20, 4], HW, HW, SWL],
-    [[ox + 20, 4], [ox + 20, 1], [ox + 22, 0.5], [ox + 23, 1.5], HW, HW],
+    [[ox + 2, 24], [ox + 2, 16], [ox + 2, 8], [ox + 2, 0], KW * 0.9, KW * 0.9],
+    [[ox + 2, 14], [ox + 4, 21], [ox + 7, 24], [ox + 11, 24], HW, HW],
+    [[ox + 11, 24], [ox + 15, 24], [ox + 17, 21], [ox + 17, 16], HW, KW * 0.9],
+    [[ox + 17, 16], [ox + 17, 11], [ox + 17, 7], [ox + 17, 3], KW * 0.9, KW * 0.9],
+    [[ox + 17, 3], [ox + 17, 0.5], [ox + 19, 0], [ox + 21.5, 1.5], KW * 0.9, HW],
 ];
 
-// joining hairline from (x0, 1.5) up to the top of the next letter
-function join(x0, x1) =
-    [[x0, 1.5], [x0 + 4, -1], [x1 - 4, 12], [x1, 23], HW, HW];
+// joining hairline from an exit at (x0, 1.5) up to (x1, y1)
+function join(x0, x1, y1) =
+    [[x0, 1.5], [x0 + 3, 3], [x1 - 4, y1 - 8], [x1, y1], HW, HW];
 
-A1 = 51;           // first a
-N  = A1 + 30;      // n
-A2 = N + 33;       // second a
+A1 = 52;           // first a
+N1 = A1 + 28;      // n
+A2 = N1 + 27;      // second a
 
 // Heart: drawn like a pen stroke, heavier on the left lobe
 HEART = [
-    [[0, 0], [-6, 8], [-18, 13], [-18, 24], HW + 0.6, HW, SWL * 0.35],
-    [[-18, 24], [-18, 33], [-6, 35], [-1, 27], HW, HW],
-    // little curl in the dip of the heart
-    [[-1, 27], [-2, 18], [7, 18], [3, 27], HW, HW],
-    [[3, 27], [8, 35], [18, 33], [18, 23], HW, HW],
-    [[18, 23], [18, 12], [6, 7], [0, 0], HW, HW + 0.6, SWL * 0.25],
+    [[0, 0], [-6, 8], [-18, 13], [-18, 24], HW + 0.6, HW, SWL * 0.3],
+    [[-18, 24], [-18, 33], [-6, 35], [0, 26], HW, HW],
+    [[0, 26], [6, 35], [18, 33], [18, 24], HW, HW],
+    [[18, 24], [18, 13], [6, 8], [0, 0], HW, HW + 0.6, SWL * 0.3],
     // pen flick crossing out past the point
     [[0, 0], [-3, -3], [-9, -3], [-13, 1], HW + 0.6, HW],
 ];
-heart_angle = -14;
+heart_angle = -8;
 heart_pos   = [A2 + 52, 3];
 heart_join  = heart_pos + rot(bez(HEART[0], 0.5), heart_angle);
 
@@ -127,19 +125,19 @@ module sana_upright() {
     stroke_list(S_STROKES);
     ball(S_START, HW * 1.9);
     // S swash rises up into the floating "a"
-    stroke([[40, 1], [50, 2], [A1 - 4, LIFT + 10], [A1 + 9, LIFT + 24.5], HW, HW]);
+    stroke([[40, 1], [50, 3], [A1 - 5, LIFT + 18], [A1 + 7, LIFT + 24.5], HW, HW]);
 
     // floating lowercase letters
     translate([0, LIFT]) {
         stroke_list(a_letter(A1));
-        stroke(join(A1 + 21, N + 3));
-        stroke_list(n_letter(N));
-        stroke([[N + 23, 1.5], [N + 28, 2], [A2 - 2, 14], [A2 + 9, 24.5], HW, HW]);
+        stroke(join(A1 + 23, N1 + 2, 22));
+        stroke_list(n_letter(N1));
+        stroke([[N1 + 21.5, 1.5], [A2 - 3, 6], [A2 - 4, 21], [A2 + 7, 24.5], HW, HW]);
         stroke_list(a_letter(A2));
     }
 
     // last a swoops down to the heart, which stands on the table
-    stroke([[A2 + 21, LIFT + 1.5], [A2 + 30, LIFT - 2], [A2 + 28, 14], heart_join, HW, HW]);
+    stroke([[A2 + 23, LIFT + 1.5], [A2 + 30, LIFT + 3], [A2 + 33, 16], heart_join, HW, HW]);
     translate(heart_pos) rotate(heart_angle) stroke_list(HEART);
 }
 
