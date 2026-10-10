@@ -70,6 +70,13 @@ S_STROKES = [
 ];
 S_START = [2, 24];
 
+// floating hairline swash off the S, sailing over the lowercase letters
+SWASH = [
+    [[48, 63], [66, 64], [92, 60], [112, 48], HW + 0.4, HW],
+    [[112, 48], [118, 44], [118, 38], [113, 39], HW, HW],
+    [[113, 39], [109, 40], [110, 45], [114, 44], HW, HW],
+];
+
 // lowercase a at x = ox, x-height 24
 function a_letter(ox) = [
     // bowl: hairline over the top, heavy down the left, hairline back up
@@ -102,16 +109,21 @@ A2 = N + 33;       // second a
 // Heart: drawn like a pen stroke, heavier on the left lobe
 HEART = [
     [[0, 0], [-6, 8], [-18, 13], [-18, 24], HW + 0.6, HW, SWL * 0.35],
-    [[-18, 24], [-18, 33], [-6, 35], [0, 26], HW, HW],
-    [[0, 26], [6, 35], [18, 33], [18, 23], HW, HW],
+    [[-18, 24], [-18, 33], [-6, 35], [-1, 27], HW, HW],
+    // little curl in the dip of the heart
+    [[-1, 27], [-2, 18], [7, 18], [3, 27], HW, HW],
+    [[3, 27], [8, 35], [18, 33], [18, 23], HW, HW],
     [[18, 23], [18, 12], [6, 7], [0, 0], HW, HW + 0.6, SWL * 0.25],
+    // pen flick crossing out past the point
+    [[0, 0], [-3, -3], [-9, -3], [-13, 1], HW + 0.6, HW],
 ];
 heart_angle = -14;
-heart_pos   = [A2 + 52, 0];
+heart_pos   = [A2 + 52, 3];
 heart_join  = heart_pos + rot(bez(HEART[0], 0.5), heart_angle);
 
 module sana_upright() {
     stroke_list(S_STROKES);
+    stroke_list(SWASH);
     ball(S_START, HW * 1.9);
     stroke([[40, 1], [46, 1], [A1 - 2, 14], [A1 + 9, 24.5], HW, HW]);
 
