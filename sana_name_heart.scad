@@ -8,7 +8,7 @@ scale_by  = 1.0;   // 1.0 = about 190 x 66 mm
 thickness = 10;    // depth of the sign in mm (deeper = steadier)
 
 /* [Strokes] */
-hair  = 2.0;       // hairline width (keep >= 1.6 for strength)
+hair  = 2.2;       // hairline width (keep >= 1.6 for strength)
 heavy = 6.4;       // widest point of the downstrokes
 slant = 14;        // italic slant in degrees
 
@@ -121,22 +121,25 @@ heart_angle = -14;
 heart_pos   = [A2 + 52, 3];
 heart_join  = heart_pos + rot(bez(HEART[0], 0.5), heart_angle);
 
+LIFT = 18;          // small letters float this high above the table
+
 module sana_upright() {
     stroke_list(S_STROKES);
-    stroke_list(SWASH);
     ball(S_START, HW * 1.9);
-    stroke([[40, 1], [46, 1], [A1 - 2, 14], [A1 + 9, 24.5], HW, HW]);
+    // S swash rises up into the floating "a"
+    stroke([[40, 1], [50, 2], [A1 - 4, LIFT + 10], [A1 + 9, LIFT + 24.5], HW, HW]);
 
-    stroke_list(a_letter(A1));
-    stroke(join(A1 + 21, N + 3));
+    // floating lowercase letters
+    translate([0, LIFT]) {
+        stroke_list(a_letter(A1));
+        stroke(join(A1 + 21, N + 3));
+        stroke_list(n_letter(N));
+        stroke([[N + 23, 1.5], [N + 28, 2], [A2 - 2, 14], [A2 + 9, 24.5], HW, HW]);
+        stroke_list(a_letter(A2));
+    }
 
-    stroke_list(n_letter(N));
-    stroke([[N + 23, 1.5], [N + 28, 2], [A2 - 2, 14], [A2 + 9, 24.5], HW, HW]);
-
-    stroke_list(a_letter(A2));
-    // last a sweeps out into the heart
-    stroke([[A2 + 21, 1.5], [A2 + 27, -1], [A2 + 30, 12], heart_join, HW, HW]);
-
+    // last a swoops down to the heart, which stands on the table
+    stroke([[A2 + 21, LIFT + 1.5], [A2 + 30, LIFT - 2], [A2 + 28, 14], heart_join, HW, HW]);
     translate(heart_pos) rotate(heart_angle) stroke_list(HEART);
 }
 
