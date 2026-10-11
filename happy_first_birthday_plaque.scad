@@ -1,6 +1,6 @@
 // "Happy First Birthday" premium plaque - one colour
-// Layered plate (bevelled base + raised bevelled panel), double border,
-// corner stars, serif capitals, "1" medallion, and a tiny maker's mark.
+// Layered plate with bunting, balloons, a one-candle cake, confetti,
+// elegant lettering and a tiny maker's mark.
 // Uses only OpenSCAD's built-in Liberation Serif font - nothing to install.
 // Print flat, back down, no supports.
 
@@ -18,11 +18,11 @@ keyhole   = true;  // two keyhole slots on the back for hanging
 gold      = "#d4af37"; // preview colour
 
 /* [Text] */
-line1  = "HAPPY";
-line2  = "FIRST";
-line3  = "BIRTHDAY";
+line1  = "Happy";
+line2  = "FIRST BIRTHDAY";
 makers = "ISHAAN  ·  SAHIL  ·  ARMAAN";
 serif      = "Liberation Serif:style=Bold";
+serif_it   = "Liberation Serif:style=Bold Italic";
 serif_thin = "Liberation Serif:style=Regular";
 
 $fn = 48;
@@ -52,41 +52,98 @@ module star(r, points = 5) {
         [star_r(i, r) * cos(90 + i * 180 / points), star_r(i, r) * sin(90 + i * 180 / points)]]);
 }
 
-module diamond(s) { rotate(45) square(s, center = true); }
+module outline(w) { difference() { children(); offset(delta = -w) children(); } }
 
-// "1" in a double ring, with lines and diamonds running out each side
-module medallion() {
-    difference() { circle(r = 12); circle(r = 10.6); }
-    difference() { circle(r = 9.6); circle(r = 9.0); }
-    words("1", 11, 1);
-    for (s = [-1, 1]) {
-        translate([s * 37, 0]) square([46, 1.2], center = true);
-        translate([s * 62, 0]) diamond(3.6);
-        translate([s * 69, 0]) diamond(2.0);
+// thin line between two points
+module seg(p, q, w = 1.2) { hull() { translate(p) circle(d = w); translate(q) circle(d = w); } }
+
+// curved string for the bunting
+function bunting_y(x) = 50 + 14 * pow(x / 64, 2);
+
+module bunting() {
+    for (x = [-64 : 4 : 60]) seg([x, bunting_y(x)], [x + 4, bunting_y(x + 4)]);
+    for (i = [0 : 8]) {
+        x = -56 + i * 14;
+        a = atan(2 * 14 * x / (64 * 64));
+        translate([x, bunting_y(x)]) rotate(a) {
+            flag = [[-5.5, 0], [5.5, 0], [0, -11]];
+            if (i % 2 == 0) polygon(flag);
+            else { outline(1.2) polygon(flag); translate([0, -4]) circle(d = 2); }
+        }
     }
 }
 
-module artwork_2d() {
-    // double border + corner stars
-    ring(14, 1.8);
-    ring(18, 0.9);
-    for (x = [-1, 1], y = [-1, 1])
-        translate([x * (plate_w / 2 - 25), y * (plate_h / 2 - 25)]) star(4.5, 4);
-
-    // HAPPY with small stars either side
-    translate([0, 55]) words(line1, 10, 1.6);
-    for (s = [-1, 1]) translate([s * 47, 55]) star(3.2);
-
-    // main lines
-    translate([0, 27]) words(line2, 24, 1.12);
-    translate([0, -4]) words(line3, 24, 1.08);
-
-    translate([0, -36]) medallion();
+module balloon(r) {
+    outline(1.6) scale([1, 1.25]) circle(r = r);
+    // shine
+    intersection() {
+        outline(1.0) scale([1, 1.25]) circle(r = r * 0.68);
+        translate([-r, 0]) square([r * 0.9, r * 1.4]);
+    }
+    // knot
+    translate([0, -r * 1.25]) polygon([[-2, -2.4], [2, -2.4], [0, 0.6]]);
 }
 
-// tiny maker's mark along the bottom, kept separate so it can be lower
+// wavy string from p down to q
+module string(p, q) {
+    n = 12;
+    for (i = [0 : n - 1]) {
+        t0 = i / n; t1 = (i + 1) / n;
+        seg(p + (q - p) * t0 + [1.8 * sin(t0 * 720), 0],
+            p + (q - p) * t1 + [1.8 * sin(t1 * 720), 0], 1.1);
+    }
+}
+
+module balloon_bunch() {
+    translate([-89, 18]) balloon(10);
+    translate([-73, 34]) balloon(8.5);
+    string([-89, 3], [-81, -34]);
+    string([-73, 21], [-81, -34]);
+    // little bow where the strings meet
+    translate([-81, -34]) {
+        for (s = [-1, 1]) scale([s, 1]) polygon([[0, 0], [5, 2.6], [5, -2.6]]);
+        circle(d = 2.6);
+    }
+}
+
+module cake() {
+    // bottom tier with scalloped icing
+    translate([0, -45]) outline(1.4) offset(r = 1.5) square([42, 13], center = true);
+    for (x = [-18 : 6 : 18]) translate([x, -40]) outline(1.1) circle(r = 3);
+    // top tier
+    translate([0, -32.5]) outline(1.4) offset(r = 1.5) square([28, 10], center = true);
+    for (x = [-10 : 5 : 10]) translate([x, -29]) circle(d = 1.8);
+    // plate line
+    seg([-28, -53.5], [28, -53.5], 1.4);
+    // one candle with a flame
+    translate([0, -22.5]) outline(1.0) square([3.6, 10], center = true);
+    hull() { translate([0, -15]) circle(r = 2.2); translate([0, -10]) circle(d = 0.6); }
+}
+
+CONFETTI_DOTS  = [[-30, 47], [34, 44], [-46, 18], [50, 22], [-56, -10], [58, -14],
+                  [-40, -40], [42, -42], [-18, 60], [20, 62], [-94, -50], [94, -50]];
+CONFETTI_STARS = [[-48, 34], [46, 36], [-36, -22], [38, -24], [-94, 52], [94, 52],
+                  [-64, -48], [66, -50]];
+
+module confetti() {
+    for (p = CONFETTI_DOTS) translate(p) circle(d = 2);
+    for (p = CONFETTI_STARS) translate(p) star(2.6);
+}
+
+module artwork_2d() {
+    ring(14, 1.8);
+    ring(18, 0.9);
+    bunting();
+    balloon_bunch();
+    mirror([1, 0]) balloon_bunch();
+    confetti();
+    translate([0, 27]) words(line1, 20, 1.05, serif_it);
+    translate([0, 1]) words(line2, 9.5, 1.15);
+    cake();
+}
+
 module makers_mark_2d() {
-    translate([0, -60]) words(makers, 3.2, 1.15, serif_thin);
+    translate([0, -63]) words(makers, 3.2, 1.15, serif_thin);
 }
 
 // ---------- 3D ----------
