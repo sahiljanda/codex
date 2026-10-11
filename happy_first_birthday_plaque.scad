@@ -86,6 +86,9 @@ module outline_2d() {
     }
     translate([0, top]) star(3.8);
     for (s = [-1, 1]) translate([s * 9.5, top]) star(2.3);
+    // a star tucked into each corner
+    for (x = [-1, 1], y = [-1, 1])
+        translate([x * (width / 2 - inset - 9), y * (height / 2 - inset - 9)]) star(3);
 }
 
 module makers_2d() {
