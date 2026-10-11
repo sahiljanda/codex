@@ -4,10 +4,11 @@
 // Comes with a matching stand so it can sit upright (or hang it with the
 // keyhole on the back). Built-in Liberation Serif font only.
 //
+// part = "separate" shows the two pieces apart, "assembled" shows it standing.
 // Export: set part = "plaque", export STL; set part = "stand", export STL.
 // Print both flat with no supports (plaque back down, stand base down).
 
-part = "both";     // [both, plaque, stand]
+part = "separate"; // [separate, assembled, plaque, stand]
 
 /* [Plaque] */
 width    = 220;    // plaque width in mm
@@ -81,14 +82,14 @@ module outline_2d() {
     difference() {
         rrect(width - 2 * inset, height - 2 * inset, corner_r - inset / 2);
         rrect(width - 2 * inset - 1.8, height - 2 * inset - 1.8, corner_r - inset / 2 - 0.9);
-        translate([0, top]) square([34, 6], center = true);
+        translate([0, top]) square([50, 8], center = true);
         translate([0, -top]) square([84, 6], center = true);
     }
-    translate([0, top]) star(3.8);
-    for (s = [-1, 1]) translate([s * 9.5, top]) star(2.3);
+    translate([0, top]) star(5.5);
+    for (s = [-1, 1]) translate([s * 14, top]) star(3.4);
     // a star tucked into each corner
     for (x = [-1, 1], y = [-1, 1])
-        translate([x * (width / 2 - inset - 9), y * (height / 2 - inset - 9)]) star(3);
+        translate([x * (width / 2 - inset - 11), y * (height / 2 - inset - 11)]) star(4.6);
 }
 
 module makers_2d() {
@@ -142,5 +143,10 @@ module plaque_standing() {
 color(gold) {
     if (part == "plaque") plaque();
     if (part == "stand") stand();
-    if (part == "both") { stand(); plaque_standing(); }
+    if (part == "assembled") { stand(); plaque_standing(); }
+    // the two pieces side by side, as they come off the printer
+    if (part == "separate") {
+        plaque();
+        translate([0, -height / 2 - stand_d / 2 - 25, 0]) stand();
+    }
 }
