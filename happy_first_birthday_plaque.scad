@@ -1,20 +1,35 @@
-// "Happy First Birthday" - minimal premium plaque, one colour
-// Thick rounded-rectangle slab with soft filleted edges, raised lettering,
-// a fine inset outline with sparkles in the top break and the makers'
-// names set into the bottom break. Built-in Liberation Serif only.
-// Print flat, back down, no supports.
+// "Happy First Birthday" - premium plaque with display stand, one colour
+// Rounded slab with soft filleted edges, raised lettering, a fine outline
+// with stars in the top break and the makers' names in the bottom break.
+// Comes with a matching stand so it can sit upright (or hang it with the
+// keyhole on the back). Built-in Liberation Serif font only.
+//
+// Export: set part = "plaque", export STL; set part = "stand", export STL.
+// Print both flat with no supports (plaque back down, stand base down).
 
+part = "both";     // [both, plaque, stand]
+
+/* [Plaque] */
 width    = 220;    // plaque width in mm
 height   = 140;    // plaque height in mm
 thick    = 8;      // slab thickness
-corner_r = 14;     // corner radius (seen from the front)
+corner_r = 14;     // corner radius
 fillet   = 3;      // soft rounded front edge
 relief   = 1.2;    // how far the lettering stands out
-line_relief = 0.8; // height of the outline and sparkles
+line_relief = 0.8; // height of the outline and stars
 mark_relief = 0.6; // height of the tiny names
 inset    = 9;      // outline distance from the edge
 keyhole  = true;   // keyhole on the back for hanging
-gold     = "#d4af37";
+
+/* [Stand] */
+stand_w   = 170;   // stand length
+stand_d   = 60;    // stand depth
+stand_h   = 14;    // stand height
+lean      = 12;    // how far the plaque leans back (degrees)
+slot_deep = 7;     // how far the plaque sits in the stand
+slot_gap  = 0.5;   // clearance so the plaque slides in snugly
+
+gold = "#d4af37";
 
 line1  = "Happy";
 line2  = "FIRST BIRTHDAY";
@@ -24,36 +39,35 @@ regular = "Liberation Serif:style=Regular";
 
 $fn = 64;
 
+// ---------- shapes ----------
+
 module words(t, size, spacing, font) {
     text(t, size = size, font = font, halign = "center", valign = "center", spacing = spacing);
-}
-
-// one corner post: vertical side with a rounded top edge
-module corner_post() {
-    rotate_extrude($fn = 64)
-        union() {
-            square([corner_r - fillet, thick]);
-            square([corner_r, thick - fillet]);
-            translate([corner_r - fillet, thick - fillet]) circle(r = fillet, $fn = 32);
-        }
-}
-
-module slab() {
-    hull()
-        for (x = [-1, 1], y = [-1, 1])
-            translate([x * (width / 2 - corner_r), y * (height / 2 - corner_r), 0])
-                corner_post();
 }
 
 module rrect(w, h, r) {
     offset(r = r) square([w - 2 * r, h - 2 * r], center = true);
 }
 
-// 4-point sparkle
-module sparkle(r) {
-    polygon([for (i = [0 : 7])
-        (i % 2 == 0 ? r : r * 0.28) * [cos(90 + i * 45), sin(90 + i * 45)]]);
+function star_r(i, r) = i % 2 == 0 ? r : r * 0.42;
+module star(r) {
+    polygon([for (i = [0 : 9])
+        [star_r(i, r) * cos(90 + i * 36), star_r(i, r) * sin(90 + i * 36)]]);
 }
+
+// block with rounded corners and a soft filleted top edge
+module rounded_block(w, h, t, r, f) {
+    hull()
+        for (x = [-1, 1], y = [-1, 1])
+            translate([x * (w / 2 - r), y * (h / 2 - r), 0])
+                rotate_extrude($fn = 64) union() {
+                    square([r - f, t]);
+                    square([r, t - f]);
+                    translate([r - f, t - f]) circle(r = f, $fn = 32);
+                }
+}
+
+// ---------- plaque artwork ----------
 
 module lettering_2d() {
     translate([0, 14]) words(line1, 30, 1.02, italic);
@@ -61,8 +75,7 @@ module lettering_2d() {
     translate([0, -27]) words(line2, 8, 1.7, regular);
 }
 
-// fine outline with a break at the top for the sparkles
-// and a break at the bottom for the names
+// fine outline, stars in the top break, names in the bottom break
 module outline_2d() {
     top = height / 2 - inset;
     difference() {
@@ -71,8 +84,8 @@ module outline_2d() {
         translate([0, top]) square([34, 6], center = true);
         translate([0, -top]) square([84, 6], center = true);
     }
-    translate([0, top]) sparkle(4.6);
-    for (s = [-1, 1]) translate([s * 9, top]) sparkle(2.3);
+    translate([0, top]) star(3.8);
+    for (s = [-1, 1]) translate([s * 9.5, top]) star(2.3);
 }
 
 module makers_2d() {
@@ -89,7 +102,7 @@ module keyhole_cut() {
 
 module plaque() {
     difference() {
-        slab();
+        rounded_block(width, height, thick, corner_r, fillet);
         if (keyhole) translate([0, height / 2 - 32, 0]) keyhole_cut();
     }
     face = thick - 0.01;
@@ -98,4 +111,33 @@ module plaque() {
     translate([0, 0, face]) linear_extrude(mark_relief) makers_2d();
 }
 
-color(gold) plaque();
+// ---------- stand ----------
+
+slot_y = 4;                      // slot position, a little behind centre
+slot_z = stand_h - slot_deep;    // bottom of the slot
+
+// places a child so its bottom edge sits in the slot, leaning back
+module in_slot() {
+    translate([0, slot_y, slot_z]) rotate([-lean, 0, 0]) children();
+}
+
+module stand() {
+    difference() {
+        rounded_block(stand_w, stand_d, stand_h, 10, 3);
+        in_slot() translate([-width / 2 - 5, -thick - slot_gap / 2, 0])
+            cube([width + 10, thick + slot_gap, 40]);
+    }
+}
+
+// plaque turned upright with its back on the slot's back wall
+module plaque_standing() {
+    in_slot() rotate([90, 0, 0]) translate([0, height / 2, 0]) plaque();
+}
+
+// ---------- output ----------
+
+color(gold) {
+    if (part == "plaque") plaque();
+    if (part == "stand") stand();
+    if (part == "both") { stand(); plaque_standing(); }
+}
