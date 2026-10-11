@@ -1,8 +1,8 @@
 // "Happy First Birthday" - premium plaque with display stand, one colour
 // Rounded slab with soft filleted edges, raised lettering, a fine outline
 // with stars in the top break and the makers' names in the bottom break.
-// Comes with a matching stand so it can sit upright (or hang it with the
-// keyhole on the back). Built-in Liberation Serif font only.
+// Comes with a matching stand so it can sit upright. Solid back, no holes.
+// Built-in Liberation Serif font only.
 //
 // part = "separate" shows the two pieces apart, "assembled" shows it standing.
 // Export: set part = "plaque", export STL; set part = "stand", export STL.
@@ -20,7 +20,6 @@ relief   = 1.2;    // how far the lettering stands out
 line_relief = 0.8; // height of the outline and stars
 mark_relief = 0.6; // height of the tiny names
 inset    = 9;      // outline distance from the edge
-keyhole  = true;   // keyhole on the back for hanging
 
 /* [Stand] */
 stand_w   = 170;   // stand length
@@ -96,33 +95,8 @@ module makers_2d() {
     translate([0, -(height / 2 - inset)]) words(makers, 3.2, 1.3, regular);
 }
 
-// proper keyhole: the screw head goes in the round hole, then the plaque
-// drops so the head slides up behind a 2 mm lip and locks in place
-key_head  = 10;    // fits screw heads up to ~9 mm
-key_shank = 4.6;   // fits screw shanks up to ~4 mm
-key_slide = 12;    // how far the head slides up
-key_lip   = 2;     // lip thickness that holds the screw head
-key_depth = 5;     // total depth into the back
-
-module keyhole_cut() {
-    translate([0, 0, -0.01]) {
-        // entry hole for the screw head
-        cylinder(d = key_head, h = key_depth, $fn = 48);
-        // narrow slot through the lip
-        hull() for (y = [0, key_slide]) translate([0, y, 0])
-            cylinder(d = key_shank, h = key_lip + 0.02, $fn = 32);
-        // wider channel behind the lip for the screw head
-        translate([0, 0, key_lip])
-            hull() for (y = [0, key_slide]) translate([0, y, 0])
-                cylinder(d = key_head, h = key_depth - key_lip, $fn = 48);
-    }
-}
-
 module plaque() {
-    difference() {
-        rounded_block(width, height, thick, corner_r, fillet);
-        if (keyhole) translate([0, height / 2 - 40, 0]) keyhole_cut();
-    }
+    rounded_block(width, height, thick, corner_r, fillet);
     face = thick - 0.01;
     translate([0, 0, face]) linear_extrude(relief) lettering_2d();
     translate([0, 0, face]) linear_extrude(line_relief) outline_2d();
