@@ -31,9 +31,11 @@ slot_gap  = 0.5;   // clearance so the plaque slides in snugly
 
 gold = "#d4af37";
 
-line1  = "Happy";
+line1  = "HAPPY";
 line2  = "FIRST BIRTHDAY";
-makers = "ISHAAN  ·  SAHIL  ·  ARMAAN";
+line3  = "SANA";
+text_size = 12;    // one size for all three main lines
+makers = "WITH LOVE  ·  ISHAAN  ·  SAHIL  ·  ARMAAN  ·  GUCCI";
 italic  = "Liberation Serif:style=Italic";
 regular = "Liberation Serif:style=Regular";
 
@@ -70,9 +72,10 @@ module rounded_block(w, h, t, r, f) {
 // ---------- plaque artwork ----------
 
 module lettering_2d() {
-    translate([0, 14]) words(line1, 30, 1.02, italic);
-    translate([0, -14]) square([34, 0.8], center = true);
-    translate([0, -27]) words(line2, 8, 1.7, regular);
+    translate([0, 28]) words(line1, text_size, 1.35, regular);
+    translate([0, 6]) words(line2, text_size, 1.35, regular);
+    translate([0, -16]) words(line3, text_size, 1.35, regular);
+    translate([0, -33]) square([34, 0.8], center = true);
 }
 
 // fine outline, stars in the top break, names in the bottom break
@@ -82,7 +85,7 @@ module outline_2d() {
         rrect(width - 2 * inset, height - 2 * inset, corner_r - inset / 2);
         rrect(width - 2 * inset - 1.8, height - 2 * inset - 1.8, corner_r - inset / 2 - 0.9);
         translate([0, top]) square([50, 8], center = true);
-        translate([0, -top]) square([84, 6], center = true);
+        translate([0, -top]) square([132, 6], center = true);
     }
     translate([0, top]) star(5.5);
     for (s = [-1, 1]) translate([s * 14, top]) star(3.4);
@@ -92,7 +95,7 @@ module outline_2d() {
 }
 
 module makers_2d() {
-    translate([0, -(height / 2 - inset)]) words(makers, 3.2, 1.3, regular);
+    translate([0, -(height / 2 - inset)]) words(makers, 3.2, 1.12, regular);
 }
 
 module plaque() {
