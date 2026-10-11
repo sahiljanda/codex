@@ -15,12 +15,13 @@ bevel     = 1.6;   // bevel around the base edge
 relief    = 2.0;   // how far the lettering stands out
 mark_relief = 0.8; // height of the tiny maker's mark
 keyhole   = true;  // two keyhole slots on the back for hanging
+gold      = "#d4af37"; // preview colour
 
 /* [Text] */
 line1  = "HAPPY";
 line2  = "FIRST";
 line3  = "BIRTHDAY";
-makers = "CRAFTED BY  ISHAAN  ·  SAHIL  ·  ARMAAN";
+makers = "ISHAAN  ·  SAHIL  ·  ARMAAN";
 serif      = "Liberation Serif:style=Bold";
 serif_thin = "Liberation Serif:style=Regular";
 
@@ -123,4 +124,4 @@ module plaque() {
     translate([0, 0, top]) linear_extrude(mark_relief) makers_mark_2d();
 }
 
-plaque();
+color(gold) plaque();
