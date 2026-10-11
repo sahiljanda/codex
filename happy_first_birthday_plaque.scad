@@ -35,7 +35,7 @@ line1  = "HAPPY";
 line2  = "FIRST BIRTHDAY";
 line3  = "SANA";
 text_size = 12;    // one size for all three main lines
-makers = "WITH LOVE  ·  ISHAAN  ·  SAHIL  ·  ARMAAN  ·  GUCCI";
+makers = "LOVE  ·  ISHAAN  ·  SAHIL  ·  ARMAAN  ·  GUCCI";
 italic  = "Liberation Serif:style=Italic";
 regular = "Liberation Serif:style=Regular";
 
@@ -85,7 +85,7 @@ module outline_2d() {
         rrect(width - 2 * inset, height - 2 * inset, corner_r - inset / 2);
         rrect(width - 2 * inset - 1.8, height - 2 * inset - 1.8, corner_r - inset / 2 - 0.9);
         translate([0, top]) square([50, 8], center = true);
-        translate([0, -top]) square([132, 6], center = true);
+        translate([0, -top]) square([120, 6], center = true);
     }
     translate([0, top]) star(5.5);
     for (s = [-1, 1]) translate([s * 14, top]) star(3.4);
